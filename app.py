@@ -44,7 +44,7 @@ def get_all_sales():
 
 @app.route('/', methods=['GET'])
 def home():
-    return 'Bakery POS Cloud is running!'
+    return 'Sinshi Bakery POS Cloud is running!'
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
@@ -70,15 +70,11 @@ def dashboard():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Bakery POS Dashboard</title>
-        <!-- Bootstrap 5 CDN -->
+        <title>Sinshi Bakery Dashboard</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
         <style>
             body { background: #f5f6fa; }
-            .card {
-                box-shadow: 0 2px 10px #0001;
-                margin-bottom: 24px;
-            }
+            .card { box-shadow: 0 2px 10px #0001; margin-bottom: 24px; }
             h1, h2 { color: #562b04; }
             .btn-cash { background: #ffaf40; color: #fff; }
             .btn-cash:hover { background: #ffc353; color: #444; }
@@ -90,14 +86,19 @@ def dashboard():
                 text-align: center;
             }
             .history-list { max-height: 180px; overflow-y:auto; }
+            .refresh-btn { background: #2386ef; color: #fff; margin-left: 10px; }
             @media (max-width: 767px) {
                 .summary-box, .card {padding: 12px;}
+                .refresh-btn {margin: 10px 0 0 0;}
             }
         </style>
     </head>
     <body>
     <div class="container my-4">
-        <h1 class="mb-2 text-center">Bakery POS</h1>
+        <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
+            <h1 class="mb-2 text-center flex-grow-1">Sinshi Bakery</h1>
+            <button class="refresh-btn btn btn-primary btn-lg" onclick="window.location.reload()">Refresh</button>
+        </div>
         <h2 class="mb-4 text-center" style="font-size:1.4rem;">Sales Dashboard</h2>
         {% if msg %}
             <div class="alert alert-success text-center">{{ msg }}</div>
@@ -196,4 +197,4 @@ def transaction_sms():
         data = request.get_json()
         return jsonify({'message': 'Received', 'data': data}), 200
 
-# Do NOT add an if __name__ == '__main__': block for Heroku.
+# (Do NOT add if __name__ == "__main__": block)

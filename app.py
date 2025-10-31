@@ -65,31 +65,110 @@ def dashboard():
     upi_history = [(t[11:16], amt) for typ, amt, t in sales if typ == 'upi']
 
     return render_template_string("""
-    <h2>Bakery POS Sales Dashboard (Persistent)</h2>
-    <p style="color:green;">{{msg}}</p>
-    <b>Today's Cash Sales:</b> ₹{{cash_today}}
-    <br>
-    <b>Today's UPI Sales:</b> ₹{{upi_today}}
-    <br><br>
-    <form method="post" style="margin-bottom:20px;">
-        <label>Enter Cash Sale:</label>
-        <input name="amount" type="number" step="0.01" required>
-        <button type="submit">Add Cash</button>
-    </form>
-    <b>Cash sales (today):</b>
-    <ul>
-        {% for t, amt in cash_history %}
-            <li>{{t}} - ₹{{amt}}</li>
-        {% endfor %}
-    </ul>
-    <b>UPI sales (today):</b>
-    <ul>
-        {% for t, amt in upi_history %}
-            <li>{{t}} - ₹{{amt}}</li>
-        {% endfor %}
-    </ul>
-    <a href="/export">Download Sales Excel (All Records)</a>
-    """, cash_today=cash_today, upi_today=upi_today, cash_history=cash_history, upi_history=upi_history, msg=msg)
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Bakery POS Dashboard</title>
+        <!-- Bootstrap 5 CDN -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            body { background: #f5f6fa; }
+            .card {
+                box-shadow: 0 2px 10px #0001;
+                margin-bottom: 24px;
+            }
+            h1, h2 { color: #562b04; }
+            .btn-cash { background: #ffaf40; color: #fff; }
+            .btn-cash:hover { background: #ffc353; color: #444; }
+            .summary-box {
+                border-radius: 14px;
+                background: #fff;
+                padding: 20px;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+            .history-list { max-height: 180px; overflow-y:auto; }
+            @media (max-width: 767px) {
+                .summary-box, .card {padding: 12px;}
+            }
+        </style>
+    </head>
+    <body>
+    <div class="container my-4">
+        <h1 class="mb-2 text-center">Bakery POS</h1>
+        <h2 class="mb-4 text-center" style="font-size:1.4rem;">Sales Dashboard</h2>
+        {% if msg %}
+            <div class="alert alert-success text-center">{{ msg }}</div>
+        {% endif %}
+        <div class="row justify-content-center mb-3">
+            <div class="col-12 col-md-5">
+                <div class="summary-box mb-3">
+                    <div class="fw-bold" style="font-size:1.2rem;">Today's Cash Sales</div>
+                    <div class="display-6">₹{{ cash_today }}</div>
+                </div>
+            </div>
+            <div class="col-12 col-md-5">
+                <div class="summary-box mb-3">
+                    <div class="fw-bold" style="font-size:1.2rem;">Today's UPI Sales</div>
+                    <div class="display-6">₹{{ upi_today }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center mb-4">
+            <div class="col-12 col-md-6">
+                <div class="card p-3">
+                    <h5 class="mb-3 text-center">Add a Cash Sale</h5>
+                    <form method="post" class="d-flex align-items-center justify-content-center flex-wrap gap-2">
+                        <input name="amount" class="form-control me-2" type="number" step="0.01" placeholder="Cash Sale Amount" style="max-width:140px;" required>
+                        <button type="submit" class="btn btn-cash px-4">Add</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="row gy-3">
+            <div class="col-12 col-md-6">
+                <div class="card p-3">
+                    <h6 class="fw-bold mb-2">Cash Sales (Today)</h6>
+                    <ul class="list-group history-list">
+                    {% for t, amt in cash_history %}
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>{{ t }}</span> <span>₹{{ amt }}</span>
+                        </li>
+                    {% else %}
+                        <li class="list-group-item">No cash sales yet</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card p-3">
+                    <h6 class="fw-bold mb-2">UPI Sales (Today)</h6>
+                    <ul class="list-group history-list">
+                    {% for t, amt in upi_history %}
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>{{ t }}</span> <span>₹{{ amt }}</span>
+                        </li>
+                    {% else %}
+                        <li class="list-group-item">No UPI sales yet</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="/export" class="btn btn-success btn-lg">Download Sales Excel (All Records)</a>
+        </div>
+    </div>
+    </body>
+    </html>
+    """,
+    cash_today=cash_today,
+    upi_today=upi_today,
+    cash_history=cash_history,
+    upi_history=upi_history,
+    msg=msg)
 
 @app.route('/api/add_upi_sale', methods=['POST'])
 def add_upi():
@@ -117,5 +196,4 @@ def transaction_sms():
         data = request.get_json()
         return jsonify({'message': 'Received', 'data': data}), 200
 
-# (NO if __name__ == "__main__": block)
-
+# Do NOT add an if __name__ == '__main__': block for Heroku.

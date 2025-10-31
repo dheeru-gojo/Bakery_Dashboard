@@ -5,9 +5,8 @@ import os
 from datetime import datetime, date
 
 app = Flask(__name__)
-DB_FILE = 'sales.db'
+DB_FILE = os.path.join(os.path.dirname(__file__), 'sales.db')
 
-# Initialize SQLite DB (run once)
 def init_db():
     with sqlite3.connect(DB_FILE) as conn:
         c = conn.cursor()
@@ -20,7 +19,6 @@ def init_db():
         )
         ''')
         conn.commit()
-
 init_db()
 
 def add_sale(sale_type, amount):
@@ -105,7 +103,6 @@ def add_upi():
 
 @app.route('/export')
 def export_sales():
-    # Export all sales to Excel (as CSV, which Excel opens)
     sales = get_all_sales()
     df = pd.DataFrame(sales, columns=['Type', 'Amount', 'DateTime'])
     export_file = 'sales_records.csv'
@@ -120,5 +117,5 @@ def transaction_sms():
         data = request.get_json()
         return jsonify({'message': 'Received', 'data': data}), 200
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# (NO if __name__ == "__main__": block)
+

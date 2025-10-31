@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template_string, jsonify, send_file
+from flask import Flask, request, render_template_string, jsonify, send_file, redirect, url_for
 import sqlite3
 import pandas as pd
 import os
@@ -48,14 +48,16 @@ def home():
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
-    msg = None
+    msg = request.args.get('msg')
     if request.method == 'POST':
         try:
             amount = float(request.form['amount'])
             add_sale('cash', amount)
             msg = f"Added cash sale: ₹{amount:.2f}"
+            return redirect(url_for('dashboard', msg=msg))
         except Exception:
             msg = "Invalid input."
+            return redirect(url_for('dashboard', msg=msg))
 
     today = date.today()
     sales = get_sales_for_day(today)
@@ -197,4 +199,4 @@ def transaction_sms():
         data = request.get_json()
         return jsonify({'message': 'Received', 'data': data}), 200
 
-# (Do NOT add if __name__ == "__main__": block)
+# (No if __name__ == "__main__" block)

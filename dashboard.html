@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sinshi Bakery</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Montserrat', Arial, sans-serif; background: #f5f8ff; margin: 0; }
+    h1 { background: #4F8FFF; color: #fff; padding: 24px 0; text-align: center; font-size: 2.15em;}
+    .metrics { display: flex; justify-content: center; gap: 25px; margin: 30px 0 0 0;}
+    .card { background: #fff; border-radius: 10px; padding: 18px 30px; box-shadow: 0 6px 24px rgba(79,143,255,.11); min-width: 195px; text-align:center;}
+    .label {color: #4F8FFF; margin-bottom: 5px;}
+    .value { font-weight: 700; font-size: 1.4em;}
+    .totalsum {background:#d2edfa; color:#176ca6; font-size:1.1em; font-weight:700; border-radius:8px; margin:21px auto 0 auto; width:340px; text-align:center; padding:7px;}
+    .section {background:#fff; border-radius:10px; margin:32px auto 10px auto; padding:18px 20px; max-width:575px; box-shadow:0 2px 11px rgba(79,143,255,.09);}
+    .section label { margin-right:8px;}
+    .section input {padding:6px 10px; border-radius:5px; border:1px solid #aaa; margin-right:8px; width:135px;}
+    button { background: #4F8FFF; color: #fff; border: none; border-radius: 4px; font-size: 1em; padding: 7px 20px; cursor: pointer;}
+    .refresh-btn { background:#fff; color:#4F8FFF; border:2px solid #4F8FFF; margin-bottom:18px; margin-right:15px;}
+    .refresh-btn:hover, .download-btn:hover {background:#e3eeff;}
+    .download-btn { background:#fff; color:#276cad; border:2px solid #40aed7;}
+    .sales-lists { display:flex; flex-wrap:wrap; justify-content:space-between; gap:20px;}
+    .sales-list { flex:1 1 230px; }
+    .sales-list-title {color:#276cad; font-size:1.1em; margin:0 0 5px 0; text-align:left; font-weight:600;}
+    ul.sales {padding:0; list-style:none; margin:0;}
+    ul.sales li {padding: 6px 0; border-bottom:1px solid #e4eefd; font-size:1em;}
+    @media (max-width:600px) {
+      .metrics { flex-direction:column; gap:12px;}
+      .section, .totalsum {max-width:95vw; width:95vw;}
+      .sales-lists { flex-direction:column;}
+    }
+  </style>
+</head>
+<body>
+  <h1>Sinshi Bakery</h1>
+
+  <div class="metrics">
+    <div class="card">
+      <div class="label">Today's Cash Sales</div>
+      <div class="value" id="cashSales">--</div>
+    </div>
+    <div class="card">
+      <div class="label">Today's UPI Sales</div>
+      <div class="value" id="upiSales">--</div>
+    </div>
+    <div class="card">
+      <div class="label">Today's Total Sales</div>
+      <div class="value" id="totalSales">--</div>
+    </div>
+  </div>
+
+  <div class="totalsum">
+    Download an Excel report of all records &nbsp;
+    <button class="download-btn" onclick="window.location.href='https://bakery-pos-cloud-86520e91312b.herokuapp.com/export'">Download</button>
+  </div>
+
+  <div class="section">
+    <form id="addCashForm" autocomplete="off">
+      <label>Add a Cash Sale</label>
+      <input type="number" id="cashAmount" min="1" step="0.01" required>
+      <button type="submit">Add</button>
+      <button type="button" class="refresh-btn" onclick="reloadDashboard()">Refresh</button>
+    </form>
+
+    <div class="sales-lists" style="margin-top:30px;">
+      <div class="sales-list">
+        <div class="sales-list-title">Cash Sales (Today)</div>
+        <ul class="sales" id="cashList"></ul>
+      </div>
+      <div class="sales-list">
+        <div class="sales-list-title">UPI Sales (Today)</div>
+        <ul class="sales" id="upiList"></ul>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Set API endpoint below as per your backend
+    const SALES_API = "https://bakery-pos-cloud-86520e91312b.herokuapp.com/api/sales/today";
+    const CASH_API  = "https://bakery-pos-cloud-86520e91312b.herokuapp.com/api/add_cash"; // POST
+
+    // Utility: Converts "HH:mm" time string UTC to IST
+    function utcToIST(timeHHMM) {
+      let [h, m] = timeHHMM.split(":").map(Number);
+      let dateUTC = new Date();
+      dateUTC.setUTCHours(h, m, 0, 0);
+      // Convert to IST (+5:30)
+      let istH = (h + 5 + Math.floor((m+30)/60))%24;
+      let istM = (m + 30)%60;
+      return `${String(istH).padStart(2,'0')}:${String(istM).padStart(2,'0')}`;
+    }
+
+    // Utility: Converts ISO datetime or "HH:mm" in UTC to IST string (mainly for server times)
+    function toISTTime(timestr) {
+      if (!timestr) return '--:--';
+      if (timestr.length === 5) return utcToIST(timestr);
+      let d = new Date(timestr);
+      let ist = new Date(d.getTime()+5.5*60*60*1000);
+      return ist.toTimeString().substring(0,5);
+    }
+
+    // Populate dashboard with today's sales
+    async function reloadDashboard(showTotals=1) {
+      let res = await fetch(SALES_API);
+      let data = await res.json();
+      // Assume format: {cashSales: [{time:"05:04",amount:678}], upiSales:[{time,amount}]}
+      let cashSales = data.cashSales || [];
+      let upiSales = data.upiSales || [];
+      let totalCash = 0, totalUPI = 0;
+
+      let cashHTML = '';
+      cashSales.forEach(s => {
+        let istTime = toISTTime(s.time);
+        cashHTML += `<li><b>${istTime}</b> &nbsp; ₹${s.amount}</li>`;
+        totalCash += Number(s.amount);
+      });
+
+      let upiHTML = '';
+      upiSales.forEach(s => {
+        let istTime = toISTTime(s.time);
+        upiHTML += `<li><b>${istTime}</b> &nbsp; ₹${s.amount}</li>`;
+        totalUPI += Number(s.amount);
+      });
+
+      document.getElementById('cashList').innerHTML = cashHTML || "<li>No cash sales yet</li>";
+      document.getElementById('upiList').innerHTML = upiHTML || "<li>No UPI sales yet</li>";
+
+      if (showTotals) {
+        document.getElementById('cashSales').innerText = `₹${totalCash.toFixed(1)}`;
+        document.getElementById('upiSales').innerText = `₹${totalUPI.toFixed(1)}`;
+        document.getElementById('totalSales').innerText = `₹${(totalCash+totalUPI).toFixed(1)}`;
+      }
+    }
+
+    // Form handler for adding cash sale (POSTs to cloud API, then refresh)
+    document.getElementById('addCashForm').onsubmit = async function(e) {
+      e.preventDefault();
+      let amt = document.getElementById('cashAmount').value;
+      await fetch(CASH_API, {
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({amount:amt})
+      });
+      document.getElementById('cashAmount').value = '';
+      reloadDashboard();
+    };
+
+    // Load on page show
+    reloadDashboard();
+
+    // Optional: refresh sales every 30 seconds
+    setInterval(reloadDashboard, 30000);
+  </script>
+</body>
+</html>

@@ -1,154 +1,605 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Sinshi Bakery</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+  <title>Sinshi Bakery - Sales Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body { font-family: 'Montserrat', Arial, sans-serif; background: #f5f8ff; margin: 0; }
-    h1 { background: #4F8FFF; color: #fff; padding: 24px 0; text-align: center; font-size: 2.15em;}
-    .metrics { display: flex; justify-content: center; gap: 25px; margin: 30px 0 0 0;}
-    .card { background: #fff; border-radius: 10px; padding: 18px 30px; box-shadow: 0 6px 24px rgba(79,143,255,.11); min-width: 195px; text-align:center;}
-    .label {color: #4F8FFF; margin-bottom: 5px;}
-    .value { font-weight: 700; font-size: 1.4em;}
-    .totalsum {background:#d2edfa; color:#176ca6; font-size:1.1em; font-weight:700; border-radius:8px; margin:21px auto 0 auto; width:340px; text-align:center; padding:7px;}
-    .section {background:#fff; border-radius:10px; margin:32px auto 10px auto; padding:18px 20px; max-width:575px; box-shadow:0 2px 11px rgba(79,143,255,.09);}
-    .section label { margin-right:8px;}
-    .section input {padding:6px 10px; border-radius:5px; border:1px solid #aaa; margin-right:8px; width:135px;}
-    button { background: #4F8FFF; color: #fff; border: none; border-radius: 4px; font-size: 1em; padding: 7px 20px; cursor: pointer;}
-    .refresh-btn { background:#fff; color:#4F8FFF; border:2px solid #4F8FFF; margin-bottom:18px; margin-right:15px;}
-    .refresh-btn:hover, .download-btn:hover {background:#e3eeff;}
-    .download-btn { background:#fff; color:#276cad; border:2px solid #40aed7;}
-    .sales-lists { display:flex; flex-wrap:wrap; justify-content:space-between; gap:20px;}
-    .sales-list { flex:1 1 230px; }
-    .sales-list-title {color:#276cad; font-size:1.1em; margin:0 0 5px 0; text-align:left; font-weight:600;}
-    ul.sales {padding:0; list-style:none; margin:0;}
-    ul.sales li {padding: 6px 0; border-bottom:1px solid #e4eefd; font-size:1em;}
-    @media (max-width:600px) {
-      .metrics { flex-direction:column; gap:12px;}
-      .section, .totalsum {max-width:95vw; width:95vw;}
-      .sales-lists { flex-direction:column;}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 40px;
+      animation: slideDown 0.5s ease-out;
+    }
+
+    .header h1 {
+      font-size: 3em;
+      font-weight: 700;
+      margin-bottom: 5px;
+      text-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      letter-spacing: 1px;
+    }
+
+    .header p {
+      font-size: 1.1em;
+      opacity: 0.95;
+      font-weight: 300;
+    }
+
+    /* Metrics Cards */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+      animation: fadeIn 0.6s ease-out 0.2s backwards;
+    }
+
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    }
+
+    .card-icon {
+      font-size: 2.5em;
+      margin-bottom: 15px;
+      display: inline-block;
+    }
+
+    .card-icon.cash { color: #10b981; }
+    .card-icon.upi { color: #667eea; }
+    .card-icon.total { color: #764ba2; }
+
+    .card-label {
+      color: #666;
+      font-size: 0.95em;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .card-value {
+      font-size: 2.5em;
+      font-weight: 700;
+      color: #1a1a1a;
+      line-height: 1;
+    }
+
+    .card-subtext {
+      font-size: 0.85em;
+      color: #999;
+      margin-top: 10px;
+      font-weight: 400;
+    }
+
+    /* Input Section */
+    .input-section {
+      background: white;
+      border-radius: 15px;
+      padding: 35px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      margin-bottom: 40px;
+      animation: fadeIn 0.6s ease-out 0.3s backwards;
+    }
+
+    .input-section h2 {
+      color: #333;
+      font-size: 1.3em;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .input-section h2 i {
+      color: #667eea;
+    }
+
+    .form-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .form-group input {
+      flex: 1;
+      min-width: 150px;
+      padding: 12px 18px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1em;
+      font-family: 'Poppins', sans-serif;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1em;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .btn-add {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-add:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-add:active {
+      transform: translateY(0);
+    }
+
+    .btn-refresh {
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+
+    .btn-refresh:hover {
+      background: #f5f5f5;
+      transform: rotate(180deg) translateY(-2px);
+    }
+
+    /* Sales Lists */
+    .sales-section {
+      animation: fadeIn 0.6s ease-out 0.4s backwards;
+    }
+
+    .sales-section h2 {
+      color: white;
+      font-size: 1.3em;
+      margin-bottom: 20px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .sales-lists {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    .sales-list {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+
+    .sales-list-title {
+      font-size: 1.1em;
+      font-weight: 600;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #333;
+    }
+
+    .sales-list-title.cash { color: #10b981; }
+    .sales-list-title.upi { color: #667eea; }
+
+    .sales-list-title i {
+      font-size: 1.3em;
+    }
+
+    .sales-list ul {
+      list-style: none;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .sales-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95em;
+      transition: background 0.2s;
+    }
+
+    .sales-list li:hover {
+      background: #f9f9f9;
+      padding-left: 8px;
+    }
+
+    .sales-list li:last-child {
+      border-bottom: none;
+    }
+
+    .sale-time {
+      font-weight: 600;
+      color: #667eea;
+      font-family: 'Courier New', monospace;
+    }
+
+    .sale-amount {
+      font-weight: 700;
+      color: #333;
+    }
+
+    /* Download Section - Bottom */
+    .download-section {
+      text-align: center;
+      margin-top: 50px;
+      padding: 40px 20px;
+      animation: fadeIn 0.6s ease-out 0.5s backwards;
+    }
+
+    .download-card {
+      background: white;
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .download-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(102,126,234,0.1) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+
+    .download-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .download-icon {
+      font-size: 3em;
+      color: #667eea;
+      margin-bottom: 15px;
+      animation: bounce 2s infinite;
+    }
+
+    .download-title {
+      font-size: 1.3em;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .download-desc {
+      color: #666;
+      font-size: 0.95em;
+      margin-bottom: 25px;
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 15px 40px;
+      font-size: 1.05em;
+      box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-download:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-download i {
+      margin-right: 8px;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      color: white;
+      font-size: 0.9em;
+      opacity: 0.8;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* Animations */
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* Scrollbar */
+    .sales-list ul::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .sales-list ul::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .sales-list ul::-webkit-scrollbar-thumb {
+      background: #667eea;
+      border-radius: 10px;
+    }
+
+    .sales-list ul::-webkit-scrollbar-thumb:hover {
+      background: #764ba2;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2em;
+      }
+
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .card-value {
+        font-size: 1.8em;
+      }
+
+      .form-group {
+        flex-direction: column;
+      }
+
+      .form-group input,
+      .btn {
+        width: 100%;
+      }
+
+      .sales-lists {
+        grid-template-columns: 1fr;
+      }
+
+      .input-section {
+        padding: 20px;
+      }
+
+      .download-card {
+        padding: 25px;
+      }
+
+      .download-icon {
+        font-size: 2.5em;
+      }
+
+      .download-title {
+        font-size: 1.1em;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Sinshi Bakery</h1>
-
-  <div class="metrics">
-    <div class="card">
-      <div class="label">Today's Cash Sales</div>
-      <div class="value" id="cashSales">--</div>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>🥖 Sinshi Bakery</h1>
+      <p>Sales Tracker Dashboard</p>
     </div>
-    <div class="card">
-      <div class="label">Today's UPI Sales</div>
-      <div class="value" id="upiSales">--</div>
-    </div>
-    <div class="card">
-      <div class="label">Today's Total Sales</div>
-      <div class="value" id="totalSales">--</div>
-    </div>
-  </div>
 
-  <div class="totalsum">
-    Download an Excel report of all records &nbsp;
-    <button class="download-btn" onclick="window.location.href='https://bakery-pos-cloud-86520e91312b.herokuapp.com/export'">Download</button>
-  </div>
-
-  <div class="section">
-    <form id="addCashForm" autocomplete="off">
-      <label>Add a Cash Sale</label>
-      <input type="number" id="cashAmount" min="1" step="0.01" required>
-      <button type="submit">Add</button>
-      <button type="button" class="refresh-btn" onclick="reloadDashboard()">Refresh</button>
-    </form>
-
-    <div class="sales-lists" style="margin-top:30px;">
-      <div class="sales-list">
-        <div class="sales-list-title">Cash Sales (Today)</div>
-        <ul class="sales" id="cashList"></ul>
+    <!-- Metrics Cards -->
+    <div class="metrics">
+      <div class="card">
+        <div class="card-icon cash"><i class="fas fa-coins"></i></div>
+        <div class="card-label">Today's Cash Sales</div>
+        <div class="card-value" id="cashSales">--</div>
+        <div class="card-subtext">Accumulated today</div>
       </div>
-      <div class="sales-list">
-        <div class="sales-list-title">UPI Sales (Today)</div>
-        <ul class="sales" id="upiList"></ul>
+
+      <div class="card">
+        <div class="card-icon upi"><i class="fas fa-wallet"></i></div>
+        <div class="card-label">Today's UPI Sales</div>
+        <div class="card-value" id="upiSales">--</div>
+        <div class="card-subtext">Digital payments</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon total"><i class="fas fa-chart-line"></i></div>
+        <div class="card-label">Today's Total Sales</div>
+        <div class="card-value" id="totalSales">--</div>
+        <div class="card-subtext">Combined total</div>
       </div>
     </div>
+
+    <!-- Input Section -->
+    <div class="input-section">
+      <h2><i class="fas fa-plus-circle"></i> Add a Cash Sale</h2>
+      <form id="addCashForm" autocomplete="off">
+        <div class="form-group">
+          <input type="number" id="cashAmount" min="1" step="0.01" placeholder="Enter amount (₹)" required>
+          <button type="submit" class="btn btn-add"><i class="fas fa-check"></i> Add Sale</button>
+          <button type="button" class="btn btn-refresh" onclick="reloadDashboard()"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Sales Lists -->
+    <div class="sales-section">
+      <h2><i class="fas fa-list"></i> Today's Transactions</h2>
+      <div class="sales-lists">
+        <div class="sales-list">
+          <div class="sales-list-title cash"><i class="fas fa-coins"></i> Cash Sales</div>
+          <ul class="sales" id="cashList"></ul>
+        </div>
+
+        <div class="sales-list">
+          <div class="sales-list-title upi"><i class="fas fa-wallet"></i> UPI Sales</div>
+          <ul class="sales" id="upiList"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Download Section - Bottom -->
+    <div class="download-section">
+      <div class="download-card">
+        <div class="download-content">
+          <div class="download-icon"><i class="fas fa-download"></i></div>
+          <div class="download-title">Export Sales Report</div>
+          <div class="download-desc">Download complete sales data as CSV file for accounting and analysis</div>
+          <button class="btn btn-download" onclick="window.location.href='https://bakery-pos-cloud-86520e91312b.herokuapp.com/export'">
+            <i class="fas fa-file-csv"></i> Download CSV Report
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>&copy; 2025 Sinshi Bakery. Real-time sales tracking system.</p>
+    </div>
   </div>
+
   <script>
-    // Set API endpoint below as per your backend
     const SALES_API = "https://bakery-pos-cloud-86520e91312b.herokuapp.com/api/sales/today";
-    const CASH_API  = "https://bakery-pos-cloud-86520e91312b.herokuapp.com/api/add_cash"; // POST
+    const CASH_API = "https://bakery-pos-cloud-86520e91312b.herokuapp.com/api/add_cash";
 
-    // Utility: Converts "HH:mm" time string UTC to IST
-    function utcToIST(timeHHMM) {
-      let [h, m] = timeHHMM.split(":").map(Number);
-      let dateUTC = new Date();
-      dateUTC.setUTCHours(h, m, 0, 0);
-      // Convert to IST (+5:30)
-      let istH = (h + 5 + Math.floor((m+30)/60))%24;
-      let istM = (m + 30)%60;
-      return `${String(istH).padStart(2,'0')}:${String(istM).padStart(2,'0')}`;
-    }
-
-    // Utility: Converts ISO datetime or "HH:mm" in UTC to IST string (mainly for server times)
     function toISTTime(timestr) {
       if (!timestr) return '--:--';
-      if (timestr.length === 5) return utcToIST(timestr);
+      if (timestr.length === 5) return timestr;
       let d = new Date(timestr);
-      let ist = new Date(d.getTime()+5.5*60*60*1000);
-      return ist.toTimeString().substring(0,5);
+      let ist = new Date(d.getTime() + 5.5 * 60 * 60 * 1000);
+      return ist.toTimeString().substring(0, 5);
     }
 
-    // Populate dashboard with today's sales
-    async function reloadDashboard(showTotals=1) {
-      let res = await fetch(SALES_API);
-      let data = await res.json();
-      // Assume format: {cashSales: [{time:"05:04",amount:678}], upiSales:[{time,amount}]}
-      let cashSales = data.cashSales || [];
-      let upiSales = data.upiSales || [];
-      let totalCash = 0, totalUPI = 0;
+    async function reloadDashboard(showTotals = 1) {
+      try {
+        let res = await fetch(SALES_API);
+        let data = await res.json();
+        let cashSales = data.cashSales || [];
+        let upiSales = data.upiSales || [];
+        let totalCash = 0, totalUPI = 0;
 
-      let cashHTML = '';
-      cashSales.forEach(s => {
-        let istTime = toISTTime(s.time);
-        cashHTML += `<li><b>${istTime}</b> &nbsp; ₹${s.amount}</li>`;
-        totalCash += Number(s.amount);
-      });
+        let cashHTML = '';
+        cashSales.forEach(s => {
+          let istTime = toISTTime(s.time);
+          cashHTML += \`<li><span class="sale-time">\${istTime}</span> <span class="sale-amount">₹\${s.amount}</span></li>\`;
+          totalCash += Number(s.amount);
+        });
 
-      let upiHTML = '';
-      upiSales.forEach(s => {
-        let istTime = toISTTime(s.time);
-        upiHTML += `<li><b>${istTime}</b> &nbsp; ₹${s.amount}</li>`;
-        totalUPI += Number(s.amount);
-      });
+        let upiHTML = '';
+        upiSales.forEach(s => {
+          let istTime = toISTTime(s.time);
+          upiHTML += \`<li><span class="sale-time">\${istTime}</span> <span class="sale-amount">₹\${s.amount}</span></li>\`;
+          totalUPI += Number(s.amount);
+        });
 
-      document.getElementById('cashList').innerHTML = cashHTML || "<li>No cash sales yet</li>";
-      document.getElementById('upiList').innerHTML = upiHTML || "<li>No UPI sales yet</li>";
+        document.getElementById('cashList').innerHTML = cashHTML || "<li style='color: #999;'>No cash sales yet</li>";
+        document.getElementById('upiList').innerHTML = upiHTML || "<li style='color: #999;'>No UPI sales yet</li>";
 
-      if (showTotals) {
-        document.getElementById('cashSales').innerText = `₹${totalCash.toFixed(1)}`;
-        document.getElementById('upiSales').innerText = `₹${totalUPI.toFixed(1)}`;
-        document.getElementById('totalSales').innerText = `₹${(totalCash+totalUPI).toFixed(1)}`;
+        if (showTotals) {
+          document.getElementById('cashSales').innerText = \`₹\${totalCash.toFixed(1)}\`;
+          document.getElementById('upiSales').innerText = \`₹\${totalUPI.toFixed(1)}\`;
+          document.getElementById('totalSales').innerText = \`₹\${(totalCash + totalUPI).toFixed(1)}\`;
+        }
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
       }
     }
 
-    // Form handler for adding cash sale (POSTs to cloud API, then refresh)
     document.getElementById('addCashForm').onsubmit = async function(e) {
       e.preventDefault();
       let amt = document.getElementById('cashAmount').value;
-      await fetch(CASH_API, {
-        method:"POST",
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({amount:amt})
-      });
-      document.getElementById('cashAmount').value = '';
-      reloadDashboard();
+      try {
+        await fetch(CASH_API, {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: amt })
+        });
+        document.getElementById('cashAmount').value = '';
+        reloadDashboard();
+      } catch (error) {
+        console.error('Error adding sale:', error);
+      }
     };
 
-    // Load on page show
     reloadDashboard();
-
-    // Optional: refresh sales every 30 seconds
     setInterval(reloadDashboard, 30000);
   </script>
 </body>

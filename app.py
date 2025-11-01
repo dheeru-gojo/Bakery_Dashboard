@@ -136,7 +136,6 @@ def add_sale():
             conn = get_db_connection()
             c = conn.cursor()
 
-            # Add sale
             c.execute('''
                 INSERT INTO sales (amount, mode, timestamp, time, date)
                 VALUES (?, ?, ?, ?, ?)
@@ -144,7 +143,6 @@ def add_sale():
 
             sale_id = c.lastrowid
 
-            # Add customer count (1 transaction = 1 customer)
             c.execute('''
                 INSERT INTO customers (transaction_id, timestamp, time, date)
                 VALUES (?, ?, ?, ?)
@@ -256,15 +254,12 @@ def api_sales_today():
             conn = get_db_connection()
             c = conn.cursor()
 
-            # Get cash sales
             c.execute('SELECT time, amount FROM sales WHERE mode = ? AND date = ? ORDER BY time', ("cash", today))
             cash_sales = [{"time": row["time"], "amount": row["amount"]} for row in c.fetchall()]
 
-            # Get UPI sales
             c.execute('SELECT time, amount FROM sales WHERE mode = ? AND date = ? ORDER BY time', ("upi", today))
             upi_sales = [{"time": row["time"], "amount": row["amount"]} for row in c.fetchall()]
 
-            # Get customer count
             c.execute('SELECT COUNT(*) as count FROM customers WHERE date = ?', (today,))
             customer_count = c.fetchone()["count"] or 0
 
@@ -288,20 +283,17 @@ def api_dashboard_data():
             conn = get_db_connection()
             c = conn.cursor()
 
-            # Get totals
             c.execute('SELECT SUM(amount) as total FROM sales WHERE mode = ? AND date = ?', ("cash", today))
             cash_total = c.fetchone()["total"] or 0
 
             c.execute('SELECT SUM(amount) as total FROM sales WHERE mode = ? AND date = ?', ("upi", today))
             upi_total = c.fetchone()["total"] or 0
 
-            # Get customer count
             c.execute('SELECT COUNT(*) as count FROM customers WHERE date = ?', (today,))
             customer_count = c.fetchone()["count"] or 0
 
             total_sales = cash_total + upi_total
 
-            # Get last sale
             c.execute('SELECT amount, mode, timestamp FROM sales ORDER BY timestamp DESC LIMIT 1')
             last_sale_row = c.fetchone()
             last_sale = last_sale_row if last_sale_row else None
@@ -354,6 +346,25 @@ def api_daily_report(date_str):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+@app.route("/api/latest_report")
+def api_latest_report():
+    """Get the latest daily report (for Telegram bot)."""
+    try:
+        with lock:
+            conn = get_db_connection()
+            c = conn.cursor()
+
+            c.execute('SELECT * FROM daily_reports ORDER BY date DESC LIMIT 1')
+            report = c.fetchone()
+            conn.close()
+
+        if report:
+            return jsonify(dict(report)), 200
+        else:
+            return jsonify({"error": "No reports found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
 @app.route("/api/all_reports")
 def api_all_reports():
     """Get all daily reports."""
@@ -366,6 +377,62 @@ def api_all_reports():
             conn.close()
 
         return jsonify(reports), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/analytics/peak_hours")
+def api_peak_hours():
+    """Analyze peak hours based on historical data (for inventory planning)."""
+    try:
+        with lock:
+            conn = get_db_connection()
+            c = conn.cursor()
+
+            # Get customer count by hour
+            c.execute('''
+                SELECT 
+                    SUBSTR(time, 1, 2) as hour,
+                    COUNT(*) as customer_count,
+                    SUM(CASE WHEN s.mode = 'cash' THEN s.amount ELSE 0 END) as cash_sales,
+                    SUM(CASE WHEN s.mode = 'upi' THEN s.amount ELSE 0 END) as upi_sales
+                FROM customers cust
+                LEFT JOIN sales s ON cust.transaction_id = s.id
+                GROUP BY hour
+                ORDER BY hour
+            ''')
+
+            peak_data = [dict(row) for row in c.fetchall()]
+            conn.close()
+
+        return jsonify(peak_data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/analytics/daily_distribution")
+def api_daily_distribution():
+    """Get sales distribution by day of week (for inventory planning)."""
+    try:
+        with lock:
+            conn = get_db_connection()
+            c = conn.cursor()
+
+            # Get stats by day
+            c.execute('''
+                SELECT 
+                    date,
+                    total_customers,
+                    ROUND(cash_sales, 2) as cash_sales,
+                    ROUND(upi_sales, 2) as upi_sales,
+                    ROUND(total_sales, 2) as total_sales
+                FROM daily_reports
+                ORDER BY date DESC
+                LIMIT 365
+            ''')
+
+            daily_data = [dict(row) for row in c.fetchall()]
+            conn.close()
+
+        return jsonify(daily_data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 

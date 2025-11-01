@@ -3,174 +3,242 @@ import os
 from datetime import datetime, date
 import io
 import csv
+import sqlite3
+import threading
 
 app = Flask(__name__)
 
-# In-memory storage for demo (replace with DB in production)
-sales = []
+# Database setup
+DATABASE = 'bakery_sales.db'
+lock = threading.Lock()
+
+def get_db_connection():
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def init_db():
+    """Initialize database with sales table."""
+    if not os.path.exists(DATABASE):
+        conn = get_db_connection()
+        c = conn.cursor()
+        c.execute('''
+            CREATE TABLE sales (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                amount REAL NOT NULL,
+                mode TEXT NOT NULL,
+                timestamp TEXT NOT NULL,
+                time TEXT NOT NULL,
+                date TEXT NOT NULL
+            )
+        ''')
+        conn.commit()
+        conn.close()
+
+# Initialize database on startup
+init_db()
 
 # ===== ENDPOINTS FOR N8N WEBHOOK =====
 @app.route("/api/add_sale", methods=["POST"])
 def add_sale():
     """Generic endpoint to add any sale (cash or UPI). Can be called by n8n or frontend."""
-    data = request.get_json()
-    amount = data.get("amount")
-    mode = data.get("mode", "upi")  # Default to "upi" if not specified
-    
-    # Get current IST time
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    time_only = datetime.now().strftime("%H:%M")
-    
-    sale_entry = {
-        "amount": float(amount), 
-        "mode": mode, 
-        "timestamp": timestamp,
-        "time": time_only,
-        "date": date.today().isoformat()
-    }
-    sales.append(sale_entry)
-    
-    return jsonify({
-        "status": "success", 
-        "amount": amount, 
-        "mode": mode, 
-        "timestamp": timestamp
-    })
+    try:
+        data = request.get_json()
+        amount = float(data.get("amount", 0))
+        mode = data.get("mode", "upi")
+
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        time_only = datetime.now().strftime("%H:%M")
+
+        with lock:
+            conn = get_db_connection()
+            c = conn.cursor()
+            c.execute('''
+                INSERT INTO sales (amount, mode, timestamp, time, date)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (amount, mode, timestamp, time_only, date.today().isoformat()))
+            conn.commit()
+            conn.close()
+
+        return jsonify({
+            "status": "success", 
+            "amount": amount, 
+            "mode": mode, 
+            "timestamp": timestamp
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
 
 @app.route("/api/add_cash", methods=["POST"])
 def add_cash():
     """Specific endpoint for adding cash sales from the dashboard form."""
-    data = request.get_json()
-    amount = data.get("amount")
-    
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    time_only = datetime.now().strftime("%H:%M")
-    
-    sale_entry = {
-        "amount": float(amount), 
-        "mode": "cash", 
-        "timestamp": timestamp,
-        "time": time_only,
-        "date": date.today().isoformat()
-    }
-    sales.append(sale_entry)
-    
-    return jsonify({
-        "status": "success", 
-        "amount": amount, 
-        "mode": "cash", 
-        "timestamp": timestamp
-    })
+    try:
+        data = request.get_json()
+        amount = float(data.get("amount", 0))
+
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        time_only = datetime.now().strftime("%H:%M")
+
+        with lock:
+            conn = get_db_connection()
+            c = conn.cursor()
+            c.execute('''
+                INSERT INTO sales (amount, mode, timestamp, time, date)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (amount, "cash", timestamp, time_only, date.today().isoformat()))
+            conn.commit()
+            conn.close()
+
+        return jsonify({
+            "status": "success", 
+            "amount": amount, 
+            "mode": "cash", 
+            "timestamp": timestamp
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
 
 @app.route("/api/add_upi", methods=["POST"])
 def add_upi():
     """Specific endpoint for n8n to post UPI sales."""
-    data = request.get_json()
-    amount = data.get("amount")
-    
-    # n8n might send date and time separately or as timestamp
-    upi_time = data.get("time", datetime.now().strftime("%H:%M"))
-    upi_date = data.get("date", date.today().isoformat())
-    
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    sale_entry = {
-        "amount": float(amount), 
-        "mode": "upi", 
-        "timestamp": timestamp,
-        "time": upi_time,
-        "date": upi_date
-    }
-    sales.append(sale_entry)
-    
-    return jsonify({
-        "status": "success", 
-        "amount": amount, 
-        "mode": "upi", 
-        "timestamp": timestamp
-    })
+    try:
+        data = request.get_json()
+        amount = float(data.get("amount", 0))
+
+        upi_time = data.get("time", datetime.now().strftime("%H:%M"))
+        upi_date = data.get("date", date.today().isoformat())
+
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        with lock:
+            conn = get_db_connection()
+            c = conn.cursor()
+            c.execute('''
+                INSERT INTO sales (amount, mode, timestamp, time, date)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (amount, "upi", timestamp, upi_time, upi_date))
+            conn.commit()
+            conn.close()
+
+        return jsonify({
+            "status": "success", 
+            "amount": amount, 
+            "mode": "upi", 
+            "timestamp": timestamp
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
 
 # ===== ENDPOINTS FOR DASHBOARD =====
 @app.route("/api/sales/today")
 def api_sales_today():
     """Returns today's sales broken down by cash and UPI with individual entries."""
-    today = date.today().isoformat()
-    
-    cash_sales = [
-        {"time": s.get("time", s["timestamp"].split()[1][:5]), "amount": s["amount"]} 
-        for s in sales 
-        if s.get("mode") == "cash" and s.get("date", s["timestamp"].split()[0]) == today
-    ]
-    
-    upi_sales = [
-        {"time": s.get("time", s["timestamp"].split()[1][:5]), "amount": s["amount"]} 
-        for s in sales 
-        if s.get("mode") == "upi" and s.get("date", s["timestamp"].split()[0]) == today
-    ]
-    
-    return jsonify({
-        "cashSales": cash_sales,
-        "upiSales": upi_sales
-    })
+    try:
+        today = date.today().isoformat()
+
+        with lock:
+            conn = get_db_connection()
+            c = conn.cursor()
+
+            # Get cash sales
+            c.execute('SELECT time, amount FROM sales WHERE mode = ? AND date = ? ORDER BY time', ("cash", today))
+            cash_sales = [{"time": row["time"], "amount": row["amount"]} for row in c.fetchall()]
+
+            # Get UPI sales
+            c.execute('SELECT time, amount FROM sales WHERE mode = ? AND date = ? ORDER BY time', ("upi", today))
+            upi_sales = [{"time": row["time"], "amount": row["amount"]} for row in c.fetchall()]
+
+            conn.close()
+
+        return jsonify({
+            "cashSales": cash_sales,
+            "upiSales": upi_sales
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 @app.route("/api/dashboard_data")
 def api_dashboard_data():
-    """Returns aggregated totals (legacy endpoint, kept for compatibility)."""
-    today = date.today().isoformat()
-    
-    cash_sales = sum(
-        float(s["amount"]) 
-        for s in sales 
-        if s.get("mode") == "cash" and s.get("date", s["timestamp"].split()[0]) == today
-    )
-    
-    upi_sales = sum(
-        float(s["amount"]) 
-        for s in sales 
-        if s.get("mode") == "upi" and s.get("date", s["timestamp"].split()[0]) == today
-    )
-    
-    total_sales = cash_sales + upi_sales
-    last_sale = sales[-1] if sales else {"amount": "N/A", "mode": "N/A", "timestamp": "N/A"}
-    
-    return jsonify({
-        "cashSales": cash_sales,
-        "upiSales": upi_sales,
-        "totalSales": total_sales,
-        "lastSale": f"{last_sale['amount']} ({last_sale['mode']}) at {last_sale['timestamp']}"
-    })
+    """Returns aggregated totals."""
+    try:
+        today = date.today().isoformat()
+
+        with lock:
+            conn = get_db_connection()
+            c = conn.cursor()
+
+            # Get totals
+            c.execute('SELECT SUM(amount) as total FROM sales WHERE mode = ? AND date = ?', ("cash", today))
+            cash_total = c.fetchone()["total"] or 0
+
+            c.execute('SELECT SUM(amount) as total FROM sales WHERE mode = ? AND date = ?', ("upi", today))
+            upi_total = c.fetchone()["total"] or 0
+
+            total_sales = cash_total + upi_total
+
+            # Get last sale
+            c.execute('SELECT amount, mode, timestamp FROM sales ORDER BY timestamp DESC LIMIT 1')
+            last_sale_row = c.fetchone()
+            last_sale = last_sale_row if last_sale_row else None
+
+            conn.close()
+
+        last_sale_text = f"{last_sale['amount']} ({last_sale['mode']}) at {last_sale['timestamp']}" if last_sale else "N/A"
+
+        return jsonify({
+            "cashSales": cash_total,
+            "upiSales": upi_total,
+            "totalSales": total_sales,
+            "lastSale": last_sale_text
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 @app.route("/api/all_sales")
 def api_all_sales():
     """Returns all sales records."""
-    return jsonify(sales)
+    try:
+        with lock:
+            conn = get_db_connection()
+            c = conn.cursor()
+            c.execute('SELECT * FROM sales ORDER BY timestamp DESC')
+            sales = [dict(row) for row in c.fetchall()]
+            conn.close()
+
+        return jsonify(sales), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 @app.route("/export")
 def export_csv():
     """Export all sales as CSV file."""
-    output = io.StringIO()
-    writer = csv.writer(output)
-    
-    # Write header
-    writer.writerow(['Date', 'Time', 'Amount', 'Mode', 'Full Timestamp'])
-    
-    # Write sales data
-    for sale in sales:
-        writer.writerow([
-            sale.get('date', sale['timestamp'].split()[0]),
-            sale.get('time', sale['timestamp'].split()[1][:5]),
-            sale['amount'],
-            sale['mode'],
-            sale['timestamp']
-        ])
-    
-    # Prepare response
-    output.seek(0)
-    return Response(
-        output.getvalue(),
-        mimetype="text/csv",
-        headers={"Content-Disposition": "attachment;filename=bakery_sales.csv"}
-    )
+    try:
+        with lock:
+            conn = get_db_connection()
+            c = conn.cursor()
+            c.execute('SELECT date, time, amount, mode, timestamp FROM sales ORDER BY timestamp DESC')
+            rows = c.fetchall()
+            conn.close()
+
+        output = io.StringIO()
+        writer = csv.writer(output)
+
+        # Write header
+        writer.writerow(['Date', 'Time', 'Amount', 'Mode', 'Full Timestamp'])
+
+        # Write data
+        for row in rows:
+            writer.writerow([row["date"], row["time"], row["amount"], row["mode"], row["timestamp"]])
+
+        # Prepare response
+        output.seek(0)
+        return Response(
+            output.getvalue(),
+            mimetype="text/csv",
+            headers={"Content-Disposition": "attachment;filename=bakery_sales.csv"}
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 # ===== SERVE FRONTEND =====
 @app.route('/')

@@ -82,6 +82,7 @@
     .card-icon.cash { color: #10b981; }
     .card-icon.upi { color: #667eea; }
     .card-icon.total { color: #764ba2; }
+    .card-icon.customer { color: #f59e0b; }
 
     .card-label {
       color: #666;
@@ -265,6 +266,7 @@
       margin: 0 auto;
       position: relative;
       overflow: hidden;
+      margin-bottom: 30px;
     }
 
     .download-card::before {
@@ -438,6 +440,13 @@
         <div class="card-value" id="totalSales">--</div>
         <div class="card-subtext">Combined total</div>
       </div>
+
+      <div class="card">
+        <div class="card-icon customer"><i class="fas fa-users"></i></div>
+        <div class="card-label">Today's Customers</div>
+        <div class="card-value" id="customerCount">--</div>
+        <div class="card-subtext">Total transactions</div>
+      </div>
     </div>
 
     <div class="input-section">
@@ -471,16 +480,27 @@
         <div class="download-content">
           <div class="download-icon"><i class="fas fa-download"></i></div>
           <div class="download-title">Export Sales Report</div>
-          <div class="download-desc">Download complete sales data as CSV file for accounting and analysis</div>
+          <div class="download-desc">Download today's sales data as CSV file</div>
           <button class="btn btn-download" onclick="window.location.href='https://bakery-pos-cloud-86520e91312b.herokuapp.com/export'">
-            <i class="fas fa-file-csv"></i> Download CSV Report
+            <i class="fas fa-file-csv"></i> Download Sales CSV
+          </button>
+        </div>
+      </div>
+
+      <div class="download-card">
+        <div class="download-content">
+          <div class="download-icon"><i class="fas fa-file-chart"></i></div>
+          <div class="download-title">Export Daily Reports</div>
+          <div class="download-desc">Download all daily reports with customer counts and totals</div>
+          <button class="btn btn-download" onclick="window.location.href='https://bakery-pos-cloud-86520e91312b.herokuapp.com/export_reports'">
+            <i class="fas fa-file-csv"></i> Download Reports CSV
           </button>
         </div>
       </div>
     </div>
 
     <div class="footer">
-      <p>&copy; 2025 Sinshi Bakery. Real-time sales tracking system.</p>
+      <p>&copy; 2025 Sinshi Bakery. Real-time sales tracking system with customer analytics.</p>
     </div>
   </div>
 
@@ -494,6 +514,7 @@
         let data = await res.json();
         let cashSales = data.cashSales || [];
         let upiSales = data.upiSales || [];
+        let customerCount = data.customerCount || 0;
         let totalCash = 0, totalUPI = 0;
 
         let cashHTML = '';
@@ -515,6 +536,7 @@
           document.getElementById('cashSales').innerText = '₹' + totalCash.toFixed(1);
           document.getElementById('upiSales').innerText = '₹' + totalUPI.toFixed(1);
           document.getElementById('totalSales').innerText = '₹' + (totalCash + totalUPI).toFixed(1);
+          document.getElementById('customerCount').innerText = customerCount;
         }
       } catch (error) {
         console.error('Error loading dashboard:', error);
@@ -524,7 +546,7 @@
     document.getElementById('addCashForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       let amt = document.getElementById('cashAmount').value;
-      
+
       if (!amt || amt <= 0) {
         alert('Please enter a valid amount');
         return;

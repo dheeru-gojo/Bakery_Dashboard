@@ -7,24 +7,28 @@ app = Flask(__name__)
 # In-memory storage for demo (replace with DB in production)
 sales = []
 
-@app.route("/api/add_upi_sale", methods=["POST"])
-def add_upi_sale():
+@app.route("/api/add_sale", methods=["POST"])
+def add_sale():
     data = request.get_json()
     amount = data.get("amount")
+    mode = data.get("mode")  # Should be "cash" or "upi"
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    sales.append({"amount": amount, "timestamp": timestamp})
-    return jsonify({"status": "success", "amount": amount, "timestamp": timestamp})
+    sales.append({"amount": amount, "mode": mode, "timestamp": timestamp})
+    return jsonify({"status": "success", "amount": amount, "mode": mode, "timestamp": timestamp})
 
 @app.route("/api/dashboard_data")
 def api_dashboard_data():
-    total_sales = sum(float(s["amount"]) for s in sales if s["amount"])
-    last_sale = sales[-1] if sales else {"amount": "N/A", "timestamp": "N/A"}
+    cash_sales = sum(float(s["amount"]) for s in sales if s.get("mode") == "cash" and s["amount"])
+    upi_sales = sum(float(s["amount"]) for s in sales if s.get("mode") == "upi" and s["amount"])
+    total_sales = cash_sales + upi_sales
+    last_sale = sales[-1] if sales else {"amount": "N/A", "mode": "N/A", "timestamp": "N/A"}
     return jsonify({
+        "cashSales": cash_sales,
+        "upiSales": upi_sales,
         "totalSales": total_sales,
-        "lastSale": f"{last_sale['amount']} at {last_sale['timestamp']}"
+        "lastSale": f"{last_sale['amount']} ({last_sale['mode']}) at {last_sale['timestamp']}"
     })
 
-# NEW: Endpoint to return all sales as JSON for dashboard listing
 @app.route("/api/all_sales")
 def api_all_sales():
     return jsonify(sales)

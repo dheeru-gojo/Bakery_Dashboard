@@ -61,7 +61,6 @@
       border-radius: 15px;
       padding: 30px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
       overflow: hidden;
     }
@@ -74,11 +73,6 @@
       right: 0;
       height: 5px;
       background: linear-gradient(90deg, #667eea, #764ba2);
-    }
-
-    .card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 20px 50px rgba(0,0,0,0.2);
     }
 
     .card-icon {
@@ -152,7 +146,6 @@
       border-radius: 10px;
       font-size: 1em;
       font-family: 'Poppins', sans-serif;
-      transition: border-color 0.3s;
     }
 
     .form-group input:focus {
@@ -169,7 +162,6 @@
       font-weight: 600;
       font-family: 'Poppins', sans-serif;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -182,24 +174,10 @@
       box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
     }
 
-    .btn-add:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    .btn-add:active {
-      transform: translateY(0);
-    }
-
     .btn-refresh {
       background: white;
       color: #667eea;
       border: 2px solid #667eea;
-    }
-
-    .btn-refresh:hover {
-      background: #f5f5f5;
-      transform: rotate(180deg) translateY(-2px);
     }
 
     /* Sales Lists */
@@ -258,12 +236,6 @@
       justify-content: space-between;
       align-items: center;
       font-size: 0.95em;
-      transition: background 0.2s;
-    }
-
-    .sales-list li:hover {
-      background: #f9f9f9;
-      padding-left: 8px;
     }
 
     .sales-list li:last-child {
@@ -344,11 +316,6 @@
       box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
     }
 
-    .btn-download:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-    }
-
     .btn-download i {
       margin-right: 8px;
     }
@@ -405,10 +372,6 @@
     .sales-list ul::-webkit-scrollbar-thumb {
       background: #667eea;
       border-radius: 10px;
-    }
-
-    .sales-list ul::-webkit-scrollbar-thumb:hover {
-      background: #764ba2;
     }
 
     /* Responsive */
@@ -559,14 +522,14 @@
         let cashHTML = '';
         cashSales.forEach(s => {
           let istTime = toISTTime(s.time);
-          cashHTML += \`<li><span class="sale-time">\${istTime}</span> <span class="sale-amount">₹\${s.amount}</span></li>\`;
+          cashHTML += '<li><span class="sale-time">' + istTime + '</span> <span class="sale-amount">₹' + s.amount + '</span></li>';
           totalCash += Number(s.amount);
         });
 
         let upiHTML = '';
         upiSales.forEach(s => {
           let istTime = toISTTime(s.time);
-          upiHTML += \`<li><span class="sale-time">\${istTime}</span> <span class="sale-amount">₹\${s.amount}</span></li>\`;
+          upiHTML += '<li><span class="sale-time">' + istTime + '</span> <span class="sale-amount">₹' + s.amount + '</span></li>';
           totalUPI += Number(s.amount);
         });
 
@@ -574,30 +537,41 @@
         document.getElementById('upiList').innerHTML = upiHTML || "<li style='color: #999;'>No UPI sales yet</li>";
 
         if (showTotals) {
-          document.getElementById('cashSales').innerText = \`₹\${totalCash.toFixed(1)}\`;
-          document.getElementById('upiSales').innerText = \`₹\${totalUPI.toFixed(1)}\`;
-          document.getElementById('totalSales').innerText = \`₹\${(totalCash + totalUPI).toFixed(1)}\`;
+          document.getElementById('cashSales').innerText = '₹' + totalCash.toFixed(1);
+          document.getElementById('upiSales').innerText = '₹' + totalUPI.toFixed(1);
+          document.getElementById('totalSales').innerText = '₹' + (totalCash + totalUPI).toFixed(1);
         }
       } catch (error) {
         console.error('Error loading dashboard:', error);
       }
     }
 
-    document.getElementById('addCashForm').onsubmit = async function(e) {
+    document.getElementById('addCashForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       let amt = document.getElementById('cashAmount').value;
+
+      if (!amt || amt <= 0) {
+        alert('Please enter a valid amount');
+        return;
+      }
+
       try {
-        await fetch(CASH_API, {
+        let response = await fetch(CASH_API, {
           method: "POST",
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: amt })
+          body: JSON.stringify({ amount: parseFloat(amt) })
         });
-        document.getElementById('cashAmount').value = '';
-        reloadDashboard();
+
+        if (response.ok) {
+          document.getElementById('cashAmount').value = '';
+          await reloadDashboard();
+        } else {
+          console.error('Server error:', response.status);
+        }
       } catch (error) {
         console.error('Error adding sale:', error);
       }
-    };
+    });
 
     reloadDashboard();
     setInterval(reloadDashboard, 30000);

@@ -1,16 +1,24 @@
 from flask import Flask, request, jsonify, send_from_directory, Response
 import os
-from datetime import datetime, date
+from datetime import datetime, date, timedelta, timezone
 import io
 import csv
 import sqlite3
 import threading
+import pytz
 
 app = Flask(__name__)
 
 # Database setup
 DATABASE = 'bakery_sales.db'
 lock = threading.Lock()
+
+# IST Timezone
+IST = pytz.timezone('Asia/Kolkata')
+
+def get_ist_now():
+    """Get current time in IST."""
+    return datetime.now(IST)
 
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
@@ -47,8 +55,11 @@ def add_sale():
         amount = float(data.get("amount", 0))
         mode = data.get("mode", "upi")
 
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        time_only = datetime.now().strftime("%H:%M")
+        # Get current time in IST
+        now_ist = get_ist_now()
+        timestamp = now_ist.strftime("%Y-%m-%d %H:%M:%S")
+        time_only = now_ist.strftime("%H:%M")
+        date_only = now_ist.strftime("%d-%m-%Y")
 
         with lock:
             conn = get_db_connection()
@@ -56,7 +67,7 @@ def add_sale():
             c.execute('''
                 INSERT INTO sales (amount, mode, timestamp, time, date)
                 VALUES (?, ?, ?, ?, ?)
-            ''', (amount, mode, timestamp, time_only, date.today().isoformat()))
+            ''', (amount, mode, timestamp, time_only, date_only))
             conn.commit()
             conn.close()
 
@@ -76,8 +87,11 @@ def add_cash():
         data = request.get_json()
         amount = float(data.get("amount", 0))
 
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        time_only = datetime.now().strftime("%H:%M")
+        # Get current time in IST
+        now_ist = get_ist_now()
+        timestamp = now_ist.strftime("%Y-%m-%d %H:%M:%S")
+        time_only = now_ist.strftime("%H:%M")
+        date_only = now_ist.strftime("%d-%m-%Y")
 
         with lock:
             conn = get_db_connection()
@@ -85,7 +99,7 @@ def add_cash():
             c.execute('''
                 INSERT INTO sales (amount, mode, timestamp, time, date)
                 VALUES (?, ?, ?, ?, ?)
-            ''', (amount, "cash", timestamp, time_only, date.today().isoformat()))
+            ''', (amount, "cash", timestamp, time_only, date_only))
             conn.commit()
             conn.close()
 
@@ -105,10 +119,15 @@ def add_upi():
         data = request.get_json()
         amount = float(data.get("amount", 0))
 
-        upi_time = data.get("time", datetime.now().strftime("%H:%M"))
-        upi_date = data.get("date", date.today().isoformat())
+        # Get current time in IST
+        now_ist = get_ist_now()
+        timestamp = now_ist.strftime("%Y-%m-%d %H:%M:%S")
+        time_only = now_ist.strftime("%H:%M")
+        date_only = now_ist.strftime("%d-%m-%Y")
 
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # n8n might send date and time separately
+        upi_time = data.get("time", time_only)
+        upi_date = data.get("date", date_only)
 
         with lock:
             conn = get_db_connection()
@@ -134,7 +153,7 @@ def add_upi():
 def api_sales_today():
     """Returns today's sales broken down by cash and UPI with individual entries."""
     try:
-        today = date.today().isoformat()
+        today = get_ist_now().strftime("%d-%m-%Y")
 
         with lock:
             conn = get_db_connection()
@@ -161,7 +180,7 @@ def api_sales_today():
 def api_dashboard_data():
     """Returns aggregated totals."""
     try:
-        today = date.today().isoformat()
+        today = get_ist_now().strftime("%d-%m-%Y")
 
         with lock:
             conn = get_db_connection()

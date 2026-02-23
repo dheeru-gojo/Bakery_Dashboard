@@ -1,20 +1,38 @@
-// Run: npm install express ws
-const express = require('express');
-const WebSocket = require('ws');
-const app = express();
-app.use(express.json());
+// Simple browser-side handler for live UPI updates over WebSocket
 
-let wsClient = null;
+const UPI_WS_URL = "wss://bakery-dashboard-dw72.onrender.com/upi-stream";
 
-const wss = new WebSocket.Server({port: 40510});
-wss.on('connection', ws => { wsClient = ws; });
+function connectUpiStream() {
+  const ws = new WebSocket(UPI_WS_URL);
 
-// n8n HTTP Request should POST to: http://localhost:40509/add-upi-sale
-app.post('/add-upi-sale', (req, res) => {
-    const {amount, date, time} = req.body;
-    // Send to browser dashboard via WebSocket
-    if (wsClient) wsClient.send(JSON.stringify({amount, date, time}));
-    res.json({ok: 1});
-});
+  ws.onopen = () => {
+    console.log("Connected to UPI stream");
+  };
 
-app.listen(40509, () => console.log("UPI bridge server running on port 40509"));
+  ws.onmessage = event => {
+    try {
+      const { amount, date, time } = JSON.parse(event.data);
+      console.log("New UPI sale:", amount, date, time);
+
+      // TODO: update your dashboard DOM here
+      // e.g. increment totals, add a row to a table, etc.
+    } catch (e) {
+      console.error("Bad UPI message", e);
+    }
+  };
+
+  ws.onclose = () => {
+    console.log("UPI stream closed, reconnecting in 5s");
+    setTimeout(connectUpiStream, 5000);
+  };
+
+  ws.onerror = err => {
+    console.error("UPI stream error", err);
+    ws.close();
+  };
+}
+
+// Start WebSocket connection when page loads
+if (typeof window !== "undefined") {
+  window.addEventListener("load", connectUpiStream);
+}

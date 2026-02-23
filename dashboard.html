@@ -1,283 +1,340 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Sinshi Bakery - Sales Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sinshi Bakery Sales Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
   <style>
+    :root {
+      --bg: #050816;
+      --card-bg: #0b1020;
+      --accent: #f97316;
+      --accent-soft: rgba(249, 115, 22, 0.1);
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --border-subtle: rgba(148, 163, 184, 0.3);
+      --success: #22c55e;
+      --danger: #ef4444;
+      --info: #38bdf8;
+    }
+
     * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
     }
 
     body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #111827 0, #020617 55%);
+      color: var(--text-main);
       min-height: 100vh;
-      padding: 20px;
+      padding: 24px;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
     }
 
     .container {
-      max-width: 1200px;
+      width: 100%;
+      max-width: 1120px;
       margin: 0 auto;
+      border-radius: 24px;
+      background: radial-gradient(circle at top left, #1f2937 0, #020617 50%);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      box-shadow: 0 30px 80px rgba(15, 23, 42, 0.9);
+      padding: 24px 24px 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.08) 0, transparent 55%),
+        radial-gradient(circle at 100% 0, rgba(249, 115, 22, 0.09) 0, transparent 55%);
+      opacity: 0.6;
+      pointer-events: none;
     }
 
     .header {
-      text-align: center;
-      color: white;
-      margin-bottom: 40px;
-      animation: slideDown 0.5s ease-out;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      gap: 12px;
     }
 
-    .header h1 {
-      font-size: 3em;
-      font-weight: 700;
-      margin-bottom: 5px;
-      text-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      letter-spacing: 1px;
+    .header-left h1 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .header p {
-      font-size: 1.1em;
-      opacity: 0.95;
-      font-weight: 300;
+    .header-left h1 span {
+      font-size: 1.8rem;
+    }
+
+    .header-left p {
+      margin-top: 6px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      max-width: 420px;
+    }
+
+    .header-right {
+      text-align: right;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-right .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(22, 163, 74, 0.12);
+      color: var(--success);
+      font-size: 0.75rem;
+      font-weight: 500;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      margin-bottom: 6px;
+    }
+
+    .header-right .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
+    }
+
+    .header-right span {
+      display: block;
+    }
+
+    .header-right .desc {
+      font-size: 0.8rem;
     }
 
     .metrics {
+      position: relative;
+      z-index: 1;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 25px;
-      margin-bottom: 40px;
-      animation: fadeIn 0.6s ease-out 0.2s backwards;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
     }
 
     .card {
-      background: white;
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      background: radial-gradient(circle at top left, #111827 0, #020617 55%);
+      border-radius: 18px;
+      padding: 16px 16px 14px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow:
+        0 18px 40px rgba(15, 23, 42, 0.9),
+        0 0 0 1px rgba(15, 23, 42, 0.6);
       position: relative;
       overflow: hidden;
     }
 
     .card::before {
-      content: '';
+      content: "";
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 5px;
-      background: linear-gradient(90deg, #667eea, #764ba2);
+      inset: -40%;
+      opacity: 0.18;
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.3) 0, transparent 55%),
+        radial-gradient(circle at 100% 0, rgba(249, 115, 22, 0.35) 0, transparent 55%);
+      pointer-events: none;
     }
 
-    .card-icon {
-      font-size: 2.5em;
-      margin-bottom: 15px;
-      display: inline-block;
-    }
-
-    .card-icon.cash { color: #10b981; }
-    .card-icon.upi { color: #667eea; }
-    .card-icon.total { color: #764ba2; }
-    .card-icon.customer { color: #f59e0b; }
-
-    .card-label {
-      color: #666;
-      font-size: 0.95em;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
-    }
-
-    .card-value {
-      font-size: 2.5em;
-      font-weight: 700;
-      color: #1a1a1a;
-      line-height: 1;
-    }
-
-    .card-subtext {
-      font-size: 0.85em;
-      color: #999;
-      margin-top: 10px;
-      font-weight: 400;
-    }
-
-    .input-section {
-      background: white;
-      border-radius: 15px;
-      padding: 35px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-      margin-bottom: 40px;
-      animation: fadeIn 0.6s ease-out 0.3s backwards;
-    }
-
-    .input-section h2 {
-      color: #333;
-      font-size: 1.3em;
-      margin-bottom: 20px;
+    .card-inner {
+      position: relative;
       display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .input-section h2 i {
-      color: #667eea;
-    }
-
-    .form-group {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .form-group input {
-      flex: 1;
-      min-width: 150px;
-      padding: 12px 18px;
-      border: 2px solid #e0e0e0;
-      border-radius: 10px;
-      font-size: 1em;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    .form-group input:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .btn {
-      padding: 12px 28px;
-      border: none;
-      border-radius: 10px;
-      font-size: 1em;
-      font-weight: 600;
-      font-family: 'Poppins', sans-serif;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
+      flex-direction: column;
       gap: 8px;
-      white-space: nowrap;
     }
 
-    .btn-add {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-    }
-
-    .btn-refresh {
-      background: white;
-      color: #667eea;
-      border: 2px solid #667eea;
-    }
-
-    .sales-section {
-      animation: fadeIn 0.6s ease-out 0.4s backwards;
-    }
-
-    .sales-section h2 {
-      color: white;
-      font-size: 1.3em;
-      margin-bottom: 20px;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    }
-
-    .sales-lists {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 25px;
-      margin-bottom: 40px;
-    }
-
-    .sales-list {
-      background: white;
-      border-radius: 15px;
-      padding: 25px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-    }
-
-    .sales-list-title {
-      font-size: 1.1em;
-      font-weight: 600;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #333;
-    }
-
-    .sales-list-title.cash { color: #10b981; }
-    .sales-list-title.upi { color: #667eea; }
-
-    .sales-list-title i {
-      font-size: 1.3em;
-    }
-
-    .sales-list ul {
-      list-style: none;
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .sales-list li {
-      padding: 12px 0;
-      border-bottom: 1px solid #f0f0f0;
+    .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.95em;
+      margin-bottom: 2px;
     }
 
-    .sales-list li:last-child {
-      border-bottom: none;
+    .card-label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
     }
 
-    .sale-time {
+    .card-badge {
+      font-size: 0.68rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--text-muted);
+    }
+
+    .card-value {
+      font-size: 1.7rem;
       font-weight: 600;
-      color: #667eea;
-      font-family: 'Courier New', monospace;
+      letter-spacing: 0.04em;
     }
 
-    .sale-amount {
-      font-weight: 700;
-      color: #333;
+    .card-subtext {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .card-trend {
+      margin-top: 8px;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .trend-up {
+      color: var(--success);
+    }
+
+    .trend-down {
+      color: var(--danger);
+    }
+
+    .card-icon {
+      position: absolute;
+      right: -6px;
+      top: -6px;
+      font-size: 3rem;
+      opacity: 0.08;
+      transform: rotate(-8deg);
+    }
+
+    .card-icon.cash {
+      color: #22c55e;
+    }
+    .card-icon.upi {
+      color: #38bdf8;
+    }
+    .card-icon.total {
+      color: #f97316;
+    }
+
+    .summary-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: linear-gradient(
+        90deg,
+        rgba(15, 23, 42, 0.85),
+        rgba(15, 23, 42, 0.65)
+      );
+      border: 1px dashed rgba(148, 163, 184, 0.5);
+    }
+
+    .summary-left {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .summary-left span {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .summary-right {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .chip i {
+      font-size: 0.8rem;
     }
 
     .download-section {
+      position: relative;
+      z-index: 1;
       text-align: center;
-      margin-top: 50px;
-      padding: 40px 20px;
+      margin-top: 10px;
+      padding: 40px 20px 10px;
       animation: fadeIn 0.6s ease-out 0.5s backwards;
     }
 
     .download-card {
-      background: white;
-      border-radius: 15px;
-      padding: 40px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-      max-width: 600px;
+      background: radial-gradient(circle at top left, #0b1120 0, #020617 60%);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.9);
+      max-width: 640px;
       margin: 0 auto;
       position: relative;
       overflow: hidden;
-      margin-bottom: 30px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
     }
 
     .download-card::before {
-      content: '';
+      content: "";
       position: absolute;
-      top: -50%;
-      right: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(102,126,234,0.1) 1px, transparent 1px);
-      background-size: 50px 50px;
+      top: -60%;
+      right: -40%;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(
+        circle at center,
+        rgba(249, 115, 22, 0.35) 0,
+        transparent 65%
+      );
+      opacity: 0.7;
     }
 
     .download-content {
@@ -286,62 +343,92 @@
     }
 
     .download-icon {
-      font-size: 3em;
-      color: #667eea;
-      margin-bottom: 15px;
-      animation: bounce 2s infinite;
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: rgba(249, 115, 22, 0.18);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      border: 1px solid rgba(249, 115, 22, 0.6);
+    }
+
+    .download-icon i {
+      color: #fed7aa;
+      font-size: 1rem;
     }
 
     .download-title {
-      font-size: 1.3em;
-      font-weight: 700;
-      color: #333;
-      margin-bottom: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
     }
 
     .download-desc {
-      color: #666;
-      font-size: 0.95em;
-      margin-bottom: 25px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .btn {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      font-family: inherit;
     }
 
     .btn-download {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: white;
-      padding: 15px 40px;
-      font-size: 1.05em;
-      box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #f97316, #f59e0b);
+      color: #1f2937;
+      font-size: 0.86rem;
+      font-weight: 600;
+      box-shadow:
+        0 12px 30px rgba(249, 115, 22, 0.6),
+        0 0 0 1px rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(248, 250, 252, 0.7);
+      transition: transform 0.15s ease, box-shadow 0.15s ease,
+        background 0.15s ease;
     }
 
     .btn-download i {
-      margin-right: 8px;
+      font-size: 0.9rem;
+    }
+
+    .btn-download:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        0 16px 40px rgba(249, 115, 22, 0.8),
+        0 0 0 1px rgba(15, 23, 42, 0.9);
+      background: linear-gradient(90deg, #fb923c, #facc15);
+    }
+
+    .btn-download:active {
+      transform: translateY(1px);
+      box-shadow:
+        0 10px 28px rgba(249, 115, 22, 0.65),
+        0 0 0 1px rgba(15, 23, 42, 0.9);
     }
 
     .footer {
+      position: relative;
+      z-index: 1;
+      margin-top: 14px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
       text-align: center;
-      color: white;
-      font-size: 0.9em;
-      opacity: 0.8;
-      margin-top: 30px;
-      padding-top: 20px;
-      border-top: 1px solid rgba(255,255,255,0.2);
-    }
-
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      opacity: 0.75;
     }
 
     @keyframes fadeIn {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(6px);
       }
       to {
         opacity: 1;
@@ -349,65 +436,44 @@
       }
     }
 
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+    @media (max-width: 900px) {
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .header-right {
+        text-align: left;
+      }
     }
 
-    .sales-list ul::-webkit-scrollbar {
-      width: 6px;
-    }
+    @media (max-width: 640px) {
+      body {
+        padding: 16px;
+      }
 
-    .sales-list ul::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 10px;
-    }
-
-    .sales-list ul::-webkit-scrollbar-thumb {
-      background: #667eea;
-      border-radius: 10px;
-    }
-
-    @media (max-width: 768px) {
-      .header h1 {
-        font-size: 2em;
+      .container {
+        padding: 18px 16px 22px;
       }
 
       .metrics {
         grid-template-columns: 1fr;
       }
 
-      .card-value {
-        font-size: 1.8em;
-      }
-
-      .form-group {
-        flex-direction: column;
-      }
-
-      .form-group input,
-      .btn {
-        width: 100%;
-      }
-
-      .sales-lists {
-        grid-template-columns: 1fr;
-      }
-
-      .input-section {
-        padding: 20px;
-      }
-
       .download-card {
-        padding: 25px;
+        padding: 18px 16px;
       }
 
-      .download-icon {
-        font-size: 2.5em;
+      .header-left h1 {
+        font-size: 1.4rem;
       }
 
-      .download-title {
-        font-size: 1.1em;
+      .card-value {
+        font-size: 1.5rem;
       }
     }
   </style>
@@ -415,62 +481,95 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>🥖 Sinshi Bakery</h1>
-      <p>Sales Tracker Dashboard</p>
+      <div class="header-left">
+        <h1><span>🥐</span> Sinshi Bakery</h1>
+        <p>Sales Tracker Dashboard</p>
+      </div>
+      <div class="header-right">
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          Live on Render
+        </div>
+        <span class="desc">UPI and cash sales updated in real time.</span>
+      </div>
     </div>
 
     <div class="metrics">
       <div class="card">
-        <div class="card-icon cash"><i class="fas fa-coins"></i></div>
-        <div class="card-label">Today's Cash Sales</div>
-        <div class="card-value" id="cashSales">--</div>
-        <div class="card-subtext">Accumulated today</div>
+        <div class="card-inner">
+          <div class="card-header">
+            <div class="card-label">
+              <i class="fas fa-coins"></i> Today's Cash Sales
+            </div>
+            <div class="card-badge">Cash</div>
+          </div>
+          <div class="card-value" id="cashSales">--</div>
+          <div class="card-subtext">Accumulated today</div>
+          <div class="card-trend trend-up" id="cashTrend">
+            <i class="fas fa-arrow-trend-up"></i>
+            <span>Waiting for data…</span>
+          </div>
+          <div class="card-icon cash">
+            <i class="fas fa-sack-dollar"></i>
+          </div>
+        </div>
       </div>
 
       <div class="card">
-        <div class="card-icon upi"><i class="fas fa-wallet"></i></div>
-        <div class="card-label">Today's UPI Sales</div>
-        <div class="card-value" id="upiSales">--</div>
-        <div class="card-subtext">Digital payments</div>
+        <div class="card-inner">
+          <div class="card-header">
+            <div class="card-label">
+              <i class="fas fa-wallet"></i> Today's UPI Sales
+            </div>
+            <div class="card-badge">UPI</div>
+          </div>
+          <div class="card-value" id="upiSales">--</div>
+          <div class="card-subtext">Digital payments</div>
+          <div class="card-trend trend-up" id="upiTrend">
+            <i class="fas fa-arrow-trend-up"></i>
+            <span>Waiting for data…</span>
+          </div>
+          <div class="card-icon upi">
+            <i class="fas fa-wallet"></i>
+          </div>
+        </div>
       </div>
 
       <div class="card">
-        <div class="card-icon total"><i class="fas fa-chart-line"></i></div>
-        <div class="card-label">Today's Total Sales</div>
-        <div class="card-value" id="totalSales">--</div>
-        <div class="card-subtext">Combined total</div>
-      </div>
-
-      <div class="card">
-        <div class="card-icon customer"><i class="fas fa-users"></i></div>
-        <div class="card-label">Today's Customers</div>
-        <div class="card-value" id="customerCount">--</div>
-        <div class="card-subtext">Total transactions</div>
+        <div class="card-inner">
+          <div class="card-header">
+            <div class="card-label">
+              <i class="fas fa-chart-line"></i> Total Sales Today
+            </div>
+            <div class="card-badge">All channels</div>
+          </div>
+          <div class="card-value" id="totalSales">--</div>
+          <div class="card-subtext">Cash + UPI</div>
+          <div class="card-trend trend-up" id="totalTrend">
+            <i class="fas fa-arrow-trend-up"></i>
+            <span>Waiting for data…</span>
+          </div>
+          <div class="card-icon total">
+            <i class="fas fa-chart-column"></i>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="input-section">
-      <h2><i class="fas fa-plus-circle"></i> Add a Cash Sale</h2>
-      <form id="addCashForm" autocomplete="off">
-        <div class="form-group">
-          <input type="number" id="cashAmount" min="1" step="0.01" placeholder="Enter amount (₹)" required>
-          <button type="submit" class="btn btn-add"><i class="fas fa-check"></i> Add Sale</button>
-          <button type="button" class="btn btn-refresh" onclick="reloadDashboard()"><i class="fas fa-sync-alt"></i> Refresh</button>
+    <div class="summary-row">
+      <div class="summary-left">
+        Today's performance summary. Live data powered by
+        <span>Render + n8n</span>.
+      </div>
+      <div class="summary-right">
+        <div class="chip">
+          <i class="fas fa-bolt"></i> UPI automation
         </div>
-      </form>
-    </div>
-
-    <div class="sales-section">
-      <h2><i class="fas fa-list"></i> Today's Transactions</h2>
-      <div class="sales-lists">
-        <div class="sales-list">
-          <div class="sales-list-title cash"><i class="fas fa-coins"></i> Cash Sales</div>
-          <ul class="sales" id="cashList"></ul>
+        <div class="chip">
+          <i class="fas fa-database"></i> Daily CSV export
         </div>
-
-        <div class="sales-list">
-          <div class="sales-list-title upi"><i class="fas fa-wallet"></i> UPI Sales</div>
-          <ul class="sales" id="upiList"></ul>
+        <div class="chip">
+          <i class="fas fa-circle-nodes"></i> Flask backend
         </div>
       </div>
     </div>
@@ -478,22 +577,19 @@
     <div class="download-section">
       <div class="download-card">
         <div class="download-content">
-          <div class="download-icon"><i class="fas fa-download"></i></div>
-          <div class="download-title">Export Sales Report</div>
-          <div class="download-desc">Download today's sales data as CSV file</div>
-          <button class="btn btn-download" onclick="window.location.href='https://bakery-pos-cloud-86520e91312b.herokuapp.com/export'">
-            <i class="fas fa-file-csv"></i> Download Sales CSV
-          </button>
-        </div>
-      </div>
-
-      <div class="download-card">
-        <div class="download-content">
-          <div class="download-icon"><i class="fas fa-file-chart"></i></div>
+          <div class="download-icon">
+            <i class="fas fa-file-chart"></i>
+          </div>
           <div class="download-title">Export Daily Reports</div>
-          <div class="download-desc">Download all daily reports with customer counts and totals</div>
-          <button class="btn btn-download" onclick="window.location.href='https://bakery-pos-cloud-86520e91312b.herokuapp.com/export_reports'">
-            <i class="fas fa-file-csv"></i> Download Reports CSV
+          <div class="download-desc">
+            Download all daily reports with customer counts and totals.
+          </div>
+          <button
+            class="btn btn-download"
+            onclick="window.location.href='https://bakery-dashboard-dw72.onrender.com/export_reports'"
+          >
+            <i class="fas fa-file-csv"></i>
+            Download Reports CSV
           </button>
         </div>
       </div>
@@ -505,73 +601,41 @@
   </div>
 
   <script>
-    const SALES_API = "https://bakery-pos-cloud-86520e91312b.herokuapp.com/api/sales/today";
-    const CASH_API = "https://bakery-pos-cloud-86520e91312b.herokuapp.com/api/add_cash";
+    const BASE_URL = "https://bakery-dashboard-dw72.onrender.com";
+    const SALES_API = BASE_URL + "/api/sales/today";
+    const CASH_API = BASE_URL + "/api/add_cash";
 
-    async function reloadDashboard(showTotals = 1) {
+    async function reloadDashboard() {
       try {
-        let res = await fetch(SALES_API);
-        let data = await res.json();
-        let cashSales = data.cashSales || [];
-        let upiSales = data.upiSales || [];
-        let customerCount = data.customerCount || 0;
-        let totalCash = 0, totalUPI = 0;
+        const [salesRes, cashRes] = await Promise.all([
+          fetch(SALES_API),
+          fetch(CASH_API)
+        ]);
 
-        let cashHTML = '';
-        cashSales.forEach(s => {
-          cashHTML += '<li><span class="sale-time">' + s.time + '</span> <span class="sale-amount">₹' + s.amount + '</span></li>';
-          totalCash += Number(s.amount);
-        });
+        const salesData = await salesRes.json();
+        const cashData = await cashRes.json();
 
-        let upiHTML = '';
-        upiSales.forEach(s => {
-          upiHTML += '<li><span class="sale-time">' + s.time + '</span> <span class="sale-amount">₹' + s.amount + '</span></li>';
-          totalUPI += Number(s.amount);
-        });
+        const cash = cashData.total_cash || 0;
+        const upi = salesData.total_upi || 0;
+        const total = cash + upi;
 
-        document.getElementById('cashList').innerHTML = cashHTML || "<li style='color: #999;'>No cash sales yet</li>";
-        document.getElementById('upiList').innerHTML = upiHTML || "<li style='color: #999;'>No UPI sales yet</li>";
+        document.getElementById("cashSales").textContent = "₹" + cash;
+        document.getElementById("upiSales").textContent = "₹" + upi;
+        document.getElementById("totalSales").textContent = "₹" + total;
 
-        if (showTotals) {
-          document.getElementById('cashSales').innerText = '₹' + totalCash.toFixed(1);
-          document.getElementById('upiSales').innerText = '₹' + totalUPI.toFixed(1);
-          document.getElementById('totalSales').innerText = '₹' + (totalCash + totalUPI).toFixed(1);
-          document.getElementById('customerCount').innerText = customerCount;
-        }
-      } catch (error) {
-        console.error('Error loading dashboard:', error);
+        document.getElementById("cashTrend").innerHTML =
+          '<i class="fas fa-arrow-trend-up"></i><span>Updated just now</span>';
+        document.getElementById("upiTrend").innerHTML =
+          '<i class="fas fa-arrow-trend-up"></i><span>Updated just now</span>';
+        document.getElementById("totalTrend").innerHTML =
+          '<i class="fas fa-arrow-trend-up"></i><span>Updated just now</span>';
+      } catch (err) {
+        console.error("Failed to reload dashboard", err);
       }
     }
 
-    document.getElementById('addCashForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      let amt = document.getElementById('cashAmount').value;
-
-      if (!amt || amt <= 0) {
-        alert('Please enter a valid amount');
-        return;
-      }
-
-      try {
-        let response = await fetch(CASH_API, {
-          method: "POST",
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: parseFloat(amt) })
-        });
-
-        if (response.ok) {
-          document.getElementById('cashAmount').value = '';
-          await reloadDashboard();
-        } else {
-          console.error('Server error:', response.status);
-        }
-      } catch (error) {
-        console.error('Error adding sale:', error);
-      }
-    });
-
     reloadDashboard();
-    setInterval(reloadDashboard, 30000);
+    setInterval(reloadDashboard, 60000);
   </script>
 </body>
 </html>

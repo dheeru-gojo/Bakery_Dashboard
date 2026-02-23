@@ -20,16 +20,16 @@
 
   <style>
     :root {
-      --bg: #050816;
-      --card-bg: #0b1020;
+      --bg: #fef9c3;
+      --card-bg: #ffffff;
       --accent: #f97316;
-      --accent-soft: rgba(249, 115, 22, 0.1);
-      --text-main: #f9fafb;
-      --text-muted: #9ca3af;
-      --border-subtle: rgba(148, 163, 184, 0.3);
-      --success: #22c55e;
+      --accent-soft: #ffedd5;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --border-subtle: #e5e7eb;
+      --success: #16a34a;
       --danger: #ef4444;
-      --info: #38bdf8;
+      --info: #0284c7;
     }
 
     * {
@@ -41,7 +41,7 @@
     body {
       font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
         "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #111827 0, #020617 55%);
+      background: radial-gradient(circle at top, #fef9c3 0, #fde68a 40%, #fff7ed 100%);
       color: var(--text-main);
       min-height: 100vh;
       padding: 24px;
@@ -55,9 +55,9 @@
       max-width: 1120px;
       margin: 0 auto;
       border-radius: 24px;
-      background: radial-gradient(circle at top left, #1f2937 0, #020617 50%);
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      box-shadow: 0 30px 80px rgba(15, 23, 42, 0.9);
+      background: #fffbeb;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 20px 50px rgba(248, 250, 252, 0.9);
       padding: 24px 24px 32px;
       position: relative;
       overflow: hidden;
@@ -68,8 +68,8 @@
       position: absolute;
       inset: -40%;
       background:
-        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.08) 0, transparent 55%),
-        radial-gradient(circle at 100% 0, rgba(249, 115, 22, 0.09) 0, transparent 55%);
+        radial-gradient(circle at 0 0, rgba(251, 191, 36, 0.3) 0, transparent 55%),
+        radial-gradient(circle at 100% 0, rgba(248, 113, 113, 0.25) 0, transparent 55%);
       opacity: 0.6;
       pointer-events: none;
     }
@@ -85,7 +85,7 @@
     }
 
     .header-left h1 {
-      font-size: 1.6rem;
+      font-size: 1.7rem;
       font-weight: 600;
       letter-spacing: 0.04em;
       display: flex;
@@ -110,34 +110,26 @@
       color: var(--text-muted);
     }
 
-    .header-right .status-pill {
+    .status-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       padding: 4px 10px;
       border-radius: 999px;
-      background: rgba(22, 163, 74, 0.12);
+      background: #dcfce7;
       color: var(--success);
       font-size: 0.75rem;
       font-weight: 500;
-      border: 1px solid rgba(34, 197, 94, 0.3);
+      border: 1px solid rgba(22, 163, 74, 0.5);
       margin-bottom: 6px;
     }
 
-    .header-right .status-dot {
+    .status-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: var(--success);
-      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
-    }
-
-    .header-right span {
-      display: block;
-    }
-
-    .header-right .desc {
-      font-size: 0.8rem;
+      box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.25);
     }
 
     .metrics {
@@ -146,30 +138,17 @@
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 16px;
-      margin-bottom: 24px;
+      margin-bottom: 18px;
     }
 
     .card {
-      background: radial-gradient(circle at top left, #111827 0, #020617 55%);
+      background: var(--card-bg);
       border-radius: 18px;
       padding: 16px 16px 14px;
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      box-shadow:
-        0 18px 40px rgba(15, 23, 42, 0.9),
-        0 0 0 1px rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
       position: relative;
       overflow: hidden;
-    }
-
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      opacity: 0.18;
-      background:
-        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.3) 0, transparent 55%),
-        radial-gradient(circle at 100% 0, rgba(249, 115, 22, 0.35) 0, transparent 55%);
-      pointer-events: none;
     }
 
     .card-inner {
@@ -200,8 +179,9 @@
       font-size: 0.68rem;
       padding: 2px 8px;
       border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
+      border: 1px solid rgba(148, 163, 184, 0.6);
       color: var(--text-muted);
+      background: #f9fafb;
     }
 
     .card-value {
@@ -236,7 +216,7 @@
       right: -6px;
       top: -6px;
       font-size: 3rem;
-      opacity: 0.08;
+      opacity: 0.12;
       transform: rotate(-8deg);
     }
 
@@ -258,15 +238,11 @@
       gap: 12px;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
-      padding: 12px 14px;
+      margin-bottom: 10px;
+      padding: 10px 14px;
       border-radius: 14px;
-      background: linear-gradient(
-        90deg,
-        rgba(15, 23, 42, 0.85),
-        rgba(15, 23, 42, 0.65)
-      );
-      border: 1px dashed rgba(148, 163, 184, 0.5);
+      background: #fef3c7;
+      border: 1px dashed rgba(251, 191, 36, 0.8);
     }
 
     .summary-left {
@@ -289,16 +265,48 @@
       font-size: 0.72rem;
       padding: 4px 10px;
       border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
+      border: 1px solid rgba(148, 163, 184, 0.6);
       color: var(--text-muted);
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(15, 23, 42, 0.95);
+      background: #f9fafb;
     }
 
     .chip i {
       font-size: 0.8rem;
+    }
+
+    .manual-entry {
+      position: relative;
+      z-index: 1;
+      margin: 6px 0 18px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-manual {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: #10b981;
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 8px 18px rgba(16, 185, 129, 0.45);
+    }
+
+    .btn-manual i {
+      font-size: 0.9rem;
     }
 
     .download-section {
@@ -307,19 +315,18 @@
       text-align: center;
       margin-top: 10px;
       padding: 40px 20px 10px;
-      animation: fadeIn 0.6s ease-out 0.5s backwards;
     }
 
     .download-card {
-      background: radial-gradient(circle at top left, #0b1120 0, #020617 60%);
+      background: #ffffff;
       border-radius: 18px;
       padding: 24px;
-      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.9);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
       max-width: 640px;
       margin: 0 auto;
       position: relative;
       overflow: hidden;
-      border: 1px solid rgba(148, 163, 184, 0.45);
+      border: 1px solid var(--border-subtle);
     }
 
     .download-card::before {
@@ -331,7 +338,7 @@
       height: 260px;
       background: radial-gradient(
         circle at center,
-        rgba(249, 115, 22, 0.35) 0,
+        rgba(249, 115, 22, 0.25) 0,
         transparent 65%
       );
       opacity: 0.7;
@@ -346,7 +353,7 @@
       width: 34px;
       height: 34px;
       border-radius: 12px;
-      background: rgba(249, 115, 22, 0.18);
+      background: var(--accent-soft);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -355,7 +362,7 @@
     }
 
     .download-icon i {
-      color: #fed7aa;
+      color: #c2410c;
       font-size: 1rem;
     }
 
@@ -371,27 +378,18 @@
       margin-bottom: 14px;
     }
 
-    .btn {
-      border: none;
-      outline: none;
-      cursor: pointer;
-      font-family: inherit;
-    }
-
     .btn-download {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       padding: 9px 16px;
       border-radius: 999px;
-      background: linear-gradient(90deg, #f97316, #f59e0b);
+      background: linear-gradient(90deg, #f97316, #facc15);
       color: #1f2937;
       font-size: 0.86rem;
       font-weight: 600;
-      box-shadow:
-        0 12px 30px rgba(249, 115, 22, 0.6),
-        0 0 0 1px rgba(15, 23, 42, 0.7);
-      border: 1px solid rgba(248, 250, 252, 0.7);
+      box-shadow: 0 12px 30px rgba(249, 115, 22, 0.35);
+      border: 1px solid rgba(248, 250, 252, 0.9);
       transition: transform 0.15s ease, box-shadow 0.15s ease,
         background 0.15s ease;
     }
@@ -402,17 +400,13 @@
 
     .btn-download:hover {
       transform: translateY(-1px);
-      box-shadow:
-        0 16px 40px rgba(249, 115, 22, 0.8),
-        0 0 0 1px rgba(15, 23, 42, 0.9);
-      background: linear-gradient(90deg, #fb923c, #facc15);
+      box-shadow: 0 16px 40px rgba(249, 115, 22, 0.4);
+      background: linear-gradient(90deg, #fb923c, #fbbf24);
     }
 
     .btn-download:active {
       transform: translateY(1px);
-      box-shadow:
-        0 10px 28px rgba(249, 115, 22, 0.65),
-        0 0 0 1px rgba(15, 23, 42, 0.9);
+      box-shadow: 0 10px 24px rgba(249, 115, 22, 0.35);
     }
 
     .footer {
@@ -422,18 +416,7 @@
       font-size: 0.72rem;
       color: var(--text-muted);
       text-align: center;
-      opacity: 0.75;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(6px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      opacity: 0.85;
     }
 
     @media (max-width: 900px) {
@@ -490,7 +473,7 @@
           <span class="status-dot"></span>
           Live on Render
         </div>
-        <span class="desc">UPI and cash sales updated in real time.</span>
+        <span>UPI and cash sales updated in real time.</span>
       </div>
     </div>
 
@@ -574,6 +557,13 @@
       </div>
     </div>
 
+    <div class="manual-entry">
+      <button class="btn btn-manual" onclick="openCashModal()">
+        <i class="fas fa-plus-circle"></i>
+        Add Cash Sale
+      </button>
+    </div>
+
     <div class="download-section">
       <div class="download-card">
         <div class="download-content">
@@ -603,34 +593,57 @@
   <script>
     const BASE_URL = "https://bakery-dashboard-dw72.onrender.com";
     const SALES_API = BASE_URL + "/api/sales/today";
-    const CASH_API = BASE_URL + "/api/add_cash";
+    const CASH_API  = BASE_URL + "/api/add_cash";
 
     async function reloadDashboard() {
       try {
-        const [salesRes, cashRes] = await Promise.all([
-          fetch(SALES_API),
-          fetch(CASH_API)
-        ]);
+        const res = await fetch(SALES_API);
+        const data = await res.json();
 
-        const salesData = await salesRes.json();
-        const cashData = await cashRes.json();
+        const cash  = data.cash_sales  || 0;
+        const upi   = data.upi_sales   || 0;
+        const total = data.total_sales || (cash + upi);
 
-        const cash = cashData.total_cash || 0;
-        const upi = salesData.total_upi || 0;
-        const total = cash + upi;
-
-        document.getElementById("cashSales").textContent = "₹" + cash;
-        document.getElementById("upiSales").textContent = "₹" + upi;
+        document.getElementById("cashSales").textContent  = "₹" + cash;
+        document.getElementById("upiSales").textContent   = "₹" + upi;
         document.getElementById("totalSales").textContent = "₹" + total;
 
-        document.getElementById("cashTrend").innerHTML =
-          '<i class="fas fa-arrow-trend-up"></i><span>Updated just now</span>';
-        document.getElementById("upiTrend").innerHTML =
-          '<i class="fas fa-arrow-trend-up"></i><span>Updated just now</span>';
+        const text = "Updated just now";
+        document.getElementById("cashTrend").innerHTML  =
+          '<i class="fas fa-arrow-trend-up"></i><span>' + text + "</span>";
+        document.getElementById("upiTrend").innerHTML   =
+          '<i class="fas fa-arrow-trend-up"></i><span>' + text + "</span>";
         document.getElementById("totalTrend").innerHTML =
-          '<i class="fas fa-arrow-trend-up"></i><span>Updated just now</span>';
+          '<i class="fas fa-arrow-trend-up"></i><span>' + text + "</span>";
       } catch (err) {
         console.error("Failed to reload dashboard", err);
+      }
+    }
+
+    async function openCashModal() {
+      const amountStr = prompt("Enter cash sale amount (₹):");
+      if (!amountStr) return;
+      const amount = parseFloat(amountStr);
+      if (isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid amount.");
+        return;
+      }
+
+      try {
+        const res = await fetch(CASH_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount })
+        });
+
+        if (!res.ok) {
+          throw new Error("Server error");
+        }
+
+        reloadDashboard();
+      } catch (e) {
+        console.error("Failed to add manual cash sale", e);
+        alert("Could not add cash sale. Please try again.");
       }
     }
 

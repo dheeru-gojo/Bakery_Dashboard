@@ -20,16 +20,16 @@
 
   <style>
     :root {
-      --bg: #fef9c3;
-      --card-bg: #ffffff;
+      --bg: #f9fafb;
+      --primary: #6366f1;
+      --primary-soft: #eef2ff;
       --accent: #f97316;
       --accent-soft: #ffedd5;
-      --text-main: #1f2937;
-      --text-muted: #6b7280;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
       --border-subtle: #e5e7eb;
       --success: #16a34a;
       --danger: #ef4444;
-      --info: #0284c7;
     }
 
     * {
@@ -41,7 +41,7 @@
     body {
       font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
         "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #fef9c3 0, #fde68a 40%, #fff7ed 100%);
+      background: radial-gradient(circle at top, #eef2ff 0, #fefce8 45%, #ffffff 100%);
       color: var(--text-main);
       min-height: 100vh;
       padding: 24px;
@@ -55,9 +55,9 @@
       max-width: 1120px;
       margin: 0 auto;
       border-radius: 24px;
-      background: #fffbeb;
+      background: #ffffff;
       border: 1px solid var(--border-subtle);
-      box-shadow: 0 20px 50px rgba(248, 250, 252, 0.9);
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
       padding: 24px 24px 32px;
       position: relative;
       overflow: hidden;
@@ -68,8 +68,8 @@
       position: absolute;
       inset: -40%;
       background:
-        radial-gradient(circle at 0 0, rgba(251, 191, 36, 0.3) 0, transparent 55%),
-        radial-gradient(circle at 100% 0, rgba(248, 113, 113, 0.25) 0, transparent 55%);
+        radial-gradient(circle at 0 0, rgba(129, 140, 248, 0.28) 0, transparent 55%),
+        radial-gradient(circle at 100% 0, rgba(251, 191, 36, 0.28) 0, transparent 55%);
       opacity: 0.6;
       pointer-events: none;
     }
@@ -132,21 +132,141 @@
       box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.25);
     }
 
+    /* Cash entry panel */
+
+    .cash-panel {
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+      border-radius: 20px;
+      padding: 18px 18px 20px;
+      border: 1px solid rgba(129, 140, 248, 0.35);
+      margin-bottom: 22px;
+      box-shadow: 0 16px 40px rgba(129, 140, 248, 0.18);
+    }
+
+    .cash-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .cash-panel-header .icon-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: #4f46e5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 10px 20px rgba(79, 70, 229, 0.45);
+    }
+
+    .cash-panel-header h2 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .cash-panel-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .cash-input-wrap {
+      flex: 1 1 260px;
+    }
+
+    .cash-input {
+      width: 100%;
+      border-radius: 14px;
+      border: 2px solid #c7d2fe;
+      padding: 10px 14px;
+      font-size: 0.92rem;
+      outline: none;
+      background: white;
+      color: var(--text-main);
+      box-shadow: 0 10px 24px rgba(129, 140, 248, 0.2);
+    }
+
+    .cash-input::placeholder {
+      color: #9ca3af;
+    }
+
+    .btn {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-add,
+    .btn-refresh {
+      border-radius: 14px;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .btn-add {
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #f9fafb;
+      box-shadow: 0 12px 28px rgba(79, 70, 229, 0.35);
+    }
+
+    .btn-refresh {
+      background: #e0f2fe;
+      color: #0f172a;
+      border: 1px solid rgba(37, 99, 235, 0.4);
+    }
+
+    .btn-add:hover {
+      filter: brightness(1.05);
+    }
+
+    .btn-refresh:hover {
+      background: #dbeafe;
+    }
+
+    /* Metrics cards */
+
+    .section-title {
+      position: relative;
+      z-index: 1;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title i {
+      color: var(--primary);
+    }
+
     .metrics {
       position: relative;
       z-index: 1;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 16px;
-      margin-bottom: 18px;
+      margin-bottom: 22px;
     }
 
     .card {
-      background: var(--card-bg);
+      background: #ffffff;
       border-radius: 18px;
       padding: 16px 16px 14px;
       border: 1px solid var(--border-subtle);
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
       position: relative;
       overflow: hidden;
     }
@@ -207,146 +327,42 @@
       color: var(--success);
     }
 
-    .trend-down {
-      color: var(--danger);
-    }
-
     .card-icon {
       position: absolute;
-      right: -6px;
-      top: -6px;
-      font-size: 3rem;
+      right: -4px;
+      top: -4px;
+      font-size: 2.8rem;
       opacity: 0.12;
-      transform: rotate(-8deg);
     }
 
     .card-icon.cash {
       color: #22c55e;
     }
     .card-icon.upi {
-      color: #38bdf8;
+      color: #6366f1;
     }
     .card-icon.total {
       color: #f97316;
     }
 
-    .summary-row {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      padding: 10px 14px;
-      border-radius: 14px;
-      background: #fef3c7;
-      border: 1px dashed rgba(251, 191, 36, 0.8);
-    }
-
-    .summary-left {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .summary-left span {
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    .summary-right {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .chip {
-      font-size: 0.72rem;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      color: var(--text-muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #f9fafb;
-    }
-
-    .chip i {
-      font-size: 0.8rem;
-    }
-
-    .manual-entry {
-      position: relative;
-      z-index: 1;
-      margin: 6px 0 18px;
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    .btn {
-      border: none;
-      outline: none;
-      cursor: pointer;
-      font-family: inherit;
-    }
-
-    .btn-manual {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border-radius: 999px;
-      background: #10b981;
-      color: #ffffff;
-      font-size: 0.85rem;
-      font-weight: 600;
-      box-shadow: 0 8px 18px rgba(16, 185, 129, 0.45);
-    }
-
-    .btn-manual i {
-      font-size: 0.9rem;
-    }
+    /* Download + footer */
 
     .download-section {
       position: relative;
       z-index: 1;
       text-align: center;
       margin-top: 10px;
-      padding: 40px 20px 10px;
+      padding: 32px 20px 10px;
     }
 
     .download-card {
       background: #ffffff;
       border-radius: 18px;
-      padding: 24px;
-      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+      padding: 22px;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
       max-width: 640px;
       margin: 0 auto;
-      position: relative;
-      overflow: hidden;
       border: 1px solid var(--border-subtle);
-    }
-
-    .download-card::before {
-      content: "";
-      position: absolute;
-      top: -60%;
-      right: -40%;
-      width: 260px;
-      height: 260px;
-      background: radial-gradient(
-        circle at center,
-        rgba(249, 115, 22, 0.25) 0,
-        transparent 65%
-      );
-      opacity: 0.7;
-    }
-
-    .download-content {
-      position: relative;
-      z-index: 1;
     }
 
     .download-icon {
@@ -390,23 +406,10 @@
       font-weight: 600;
       box-shadow: 0 12px 30px rgba(249, 115, 22, 0.35);
       border: 1px solid rgba(248, 250, 252, 0.9);
-      transition: transform 0.15s ease, box-shadow 0.15s ease,
-        background 0.15s ease;
     }
 
     .btn-download i {
       font-size: 0.9rem;
-    }
-
-    .btn-download:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 16px 40px rgba(249, 115, 22, 0.4);
-      background: linear-gradient(90deg, #fb923c, #fbbf24);
-    }
-
-    .btn-download:active {
-      transform: translateY(1px);
-      box-shadow: 0 10px 24px rgba(249, 115, 22, 0.35);
     }
 
     .footer {
@@ -432,6 +435,16 @@
       .header-right {
         text-align: left;
       }
+
+      .cash-panel-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .btn-add,
+      .btn-refresh {
+        justify-content: center;
+      }
     }
 
     @media (max-width: 640px) {
@@ -449,14 +462,6 @@
 
       .download-card {
         padding: 18px 16px;
-      }
-
-      .header-left h1 {
-        font-size: 1.4rem;
-      }
-
-      .card-value {
-        font-size: 1.5rem;
       }
     }
   </style>
@@ -477,17 +482,52 @@
       </div>
     </div>
 
+    <!-- Cash entry panel -->
+    <div class="cash-panel">
+      <div class="cash-panel-header">
+        <div class="icon-circle">
+          <i class="fas fa-plus"></i>
+        </div>
+        <h2>Add a Cash Sale</h2>
+      </div>
+      <div class="cash-panel-row">
+        <div class="cash-input-wrap">
+          <input
+            id="cashAmountInput"
+            type="number"
+            step="0.01"
+            min="0"
+            class="cash-input"
+            placeholder="Enter amount (₹)"
+          />
+        </div>
+        <button class="btn btn-add" onclick="addCashSale()">
+          <i class="fas fa-check"></i>
+          Add Sale
+        </button>
+        <button class="btn btn-refresh" onclick="reloadDashboard()">
+          <i class="fas fa-rotate"></i>
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <i class="fas fa-list"></i>
+      Today's Transactions
+    </div>
+
     <div class="metrics">
       <div class="card">
         <div class="card-inner">
           <div class="card-header">
             <div class="card-label">
-              <i class="fas fa-coins"></i> Today's Cash Sales
+              <i class="fas fa-coins"></i> Cash Sales
             </div>
             <div class="card-badge">Cash</div>
           </div>
           <div class="card-value" id="cashSales">--</div>
-          <div class="card-subtext">Accumulated today</div>
+          <div class="card-subtext">Total cash collected today</div>
           <div class="card-trend trend-up" id="cashTrend">
             <i class="fas fa-arrow-trend-up"></i>
             <span>Waiting for data…</span>
@@ -502,12 +542,12 @@
         <div class="card-inner">
           <div class="card-header">
             <div class="card-label">
-              <i class="fas fa-wallet"></i> Today's UPI Sales
+              <i class="fas fa-wallet"></i> UPI Sales
             </div>
             <div class="card-badge">UPI</div>
           </div>
           <div class="card-value" id="upiSales">--</div>
-          <div class="card-subtext">Digital payments</div>
+          <div class="card-subtext">Digital payments received today</div>
           <div class="card-trend trend-up" id="upiTrend">
             <i class="fas fa-arrow-trend-up"></i>
             <span>Waiting for data…</span>
@@ -522,12 +562,12 @@
         <div class="card-inner">
           <div class="card-header">
             <div class="card-label">
-              <i class="fas fa-chart-line"></i> Total Sales Today
+              <i class="fas fa-chart-line"></i> Total Sales
             </div>
             <div class="card-badge">All channels</div>
           </div>
           <div class="card-value" id="totalSales">--</div>
-          <div class="card-subtext">Cash + UPI</div>
+          <div class="card-subtext">Cash + UPI today</div>
           <div class="card-trend trend-up" id="totalTrend">
             <i class="fas fa-arrow-trend-up"></i>
             <span>Waiting for data…</span>
@@ -537,31 +577,6 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-left">
-        Today's performance summary. Live data powered by
-        <span>Render + n8n</span>.
-      </div>
-      <div class="summary-right">
-        <div class="chip">
-          <i class="fas fa-bolt"></i> UPI automation
-        </div>
-        <div class="chip">
-          <i class="fas fa-database"></i> Daily CSV export
-        </div>
-        <div class="chip">
-          <i class="fas fa-circle-nodes"></i> Flask backend
-        </div>
-      </div>
-    </div>
-
-    <div class="manual-entry">
-      <button class="btn btn-manual" onclick="openCashModal()">
-        <i class="fas fa-plus-circle"></i>
-        Add Cash Sale
-      </button>
     </div>
 
     <div class="download-section">
@@ -586,18 +601,19 @@
     </div>
 
     <div class="footer">
-      <p>&copy; 2025 Sinshi Bakery. Real-time sales tracking system with customer analytics.</p>
+      <p>&copy; 2025 Sinshi Bakery. Real-time sales tracking with customer insights.</p>
     </div>
   </div>
 
   <script>
     const BASE_URL = "https://bakery-dashboard-dw72.onrender.com";
     const SALES_API = BASE_URL + "/api/sales/today";
-    const CASH_API  = BASE_URL + "/api/add_cash";
+    const ADD_CASH_API = BASE_URL + "/api/add_cash";
 
     async function reloadDashboard() {
       try {
         const res = await fetch(SALES_API);
+        if (!res.ok) throw new Error("Failed to fetch sales");
         const data = await res.json();
 
         const cash  = data.cash_sales  || 0;
@@ -608,45 +624,51 @@
         document.getElementById("upiSales").textContent   = "₹" + upi;
         document.getElementById("totalSales").textContent = "₹" + total;
 
-        const text = "Updated just now";
+        const msg = "Updated just now";
         document.getElementById("cashTrend").innerHTML  =
-          '<i class="fas fa-arrow-trend-up"></i><span>' + text + "</span>";
+          '<i class="fas fa-arrow-trend-up"></i><span>' + msg + "</span>";
         document.getElementById("upiTrend").innerHTML   =
-          '<i class="fas fa-arrow-trend-up"></i><span>' + text + "</span>";
+          '<i class="fas fa-arrow-trend-up"></i><span>' + msg + "</span>";
         document.getElementById("totalTrend").innerHTML =
-          '<i class="fas fa-arrow-trend-up"></i><span>' + text + "</span>";
+          '<i class="fas fa-arrow-trend-up"></i><span>' + msg + "</span>";
       } catch (err) {
-        console.error("Failed to reload dashboard", err);
+        console.error("reloadDashboard error", err);
       }
     }
 
-    async function openCashModal() {
-      const amountStr = prompt("Enter cash sale amount (₹):");
-      if (!amountStr) return;
+    async function addCashSale() {
+      const input = document.getElementById("cashAmountInput");
+      const amountStr = input.value.trim();
       const amount = parseFloat(amountStr);
-      if (isNaN(amount) || amount <= 0) {
-        alert("Please enter a valid amount.");
+
+      if (!amountStr || isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid positive amount.");
         return;
       }
 
       try {
-        const res = await fetch(CASH_API, {
+        const res = await fetch(ADD_CASH_API, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ amount })
         });
 
         if (!res.ok) {
-          throw new Error("Server error");
+          const text = await res.text();
+          console.error("add_cash failed:", text);
+          alert("Could not add cash sale. Please try again.");
+          return;
         }
 
-        reloadDashboard();
+        input.value = "";
+        await reloadDashboard();
       } catch (e) {
-        console.error("Failed to add manual cash sale", e);
-        alert("Could not add cash sale. Please try again.");
+        console.error("addCashSale error", e);
+        alert("Network error. Please try again.");
       }
     }
 
+    // initial load + periodic refresh
     reloadDashboard();
     setInterval(reloadDashboard, 60000);
   </script>

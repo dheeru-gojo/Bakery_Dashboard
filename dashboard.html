@@ -233,7 +233,7 @@
       background: #dbeafe;
     }
 
-    /* Metrics cards */
+    /* Cards */
 
     .section-title {
       position: relative;
@@ -256,7 +256,7 @@
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 16px;
-      margin-bottom: 22px;
+      margin-bottom: 16px;
     }
 
     .card {
@@ -336,11 +336,98 @@
     .card-icon.cash {
       color: #22c55e;
     }
+
     .card-icon.upi {
       color: #6366f1;
     }
+
     .card-icon.total {
       color: #f97316;
+    }
+
+    /* Today’s transaction history */
+
+    .transactions-section {
+      position: relative;
+      z-index: 1;
+      margin-top: 16px;
+      margin-bottom: 18px;
+    }
+
+    .transactions-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-main);
+    }
+
+    .transactions-title i {
+      color: var(--primary);
+    }
+
+    .transactions-list {
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      border-radius: 18px;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .transactions-column {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 10px 10px 8px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .transactions-column-title {
+      font-size: 0.86rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-main);
+    }
+
+    .transactions-column-title i {
+      font-size: 0.9rem;
+    }
+
+    .transactions-items {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .transaction-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      padding: 4px 6px;
+      border-radius: 8px;
+      background: #f9fafb;
+    }
+
+    .transaction-amount {
+      font-weight: 600;
+    }
+
+    .transaction-time {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .transaction-empty {
+      font-size: 0.76rem;
+      color: var(--text-muted);
     }
 
     /* Download + footer */
@@ -443,6 +530,10 @@
       .btn-refresh {
         justify-content: center;
       }
+
+      .transactions-list {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 640px) {
@@ -497,6 +588,7 @@
             min="0"
             class="cash-input"
             placeholder="Enter amount (₹)"
+            onkeydown="if (event.key === 'Enter') addCashSale()"
           />
         </div>
         <button class="btn btn-add" onclick="addCashSale()">
@@ -512,7 +604,7 @@
 
     <div class="section-title">
       <i class="fas fa-list"></i>
-      Today's Transactions
+      Today’s Transactions
     </div>
 
     <div class="metrics">
@@ -524,7 +616,7 @@
             </div>
             <div class="card-badge">Cash</div>
           </div>
-          <div class="card-value" id="cashSales">--</div>
+          <div class="card-value" id="cashSales">₹0.00</div>
           <div class="card-subtext">Total cash collected today</div>
           <div class="card-trend trend-up" id="cashTrend">
             <i class="fas fa-arrow-trend-up"></i>
@@ -544,7 +636,7 @@
             </div>
             <div class="card-badge">UPI</div>
           </div>
-          <div class="card-value" id="upiSales">--</div>
+          <div class="card-value" id="upiSales">₹0.00</div>
           <div class="card-subtext">Digital payments received today</div>
           <div class="card-trend trend-up" id="upiTrend">
             <i class="fas fa-arrow-trend-up"></i>
@@ -564,7 +656,7 @@
             </div>
             <div class="card-badge">All channels</div>
           </div>
-          <div class="card-value" id="totalSales">--</div>
+          <div class="card-value" id="totalSales">₹0.00</div>
           <div class="card-subtext">Cash + UPI today</div>
           <div class="card-trend trend-up" id="totalTrend">
             <i class="fas fa-arrow-trend-up"></i>
@@ -577,6 +669,31 @@
       </div>
     </div>
 
+    <!-- Today’s history -->
+    <div class="transactions-section">
+      <h3 class="transactions-title">
+        <i class="fas fa-receipt"></i>
+        Today’s Transaction History
+      </h3>
+
+      <div class="transactions-list">
+        <div class="transactions-column">
+          <h4 class="transactions-column-title">
+            <i class="fas fa-coins"></i> Cash Sales
+          </h4>
+          <div id="cashTransactions" class="transactions-items"></div>
+        </div>
+
+        <div class="transactions-column">
+          <h4 class="transactions-column-title">
+            <i class="fas fa-wallet"></i> UPI Sales
+          </h4>
+          <div id="upiTransactions" class="transactions-items"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Download section -->
     <div class="download-section">
       <div class="download-card">
         <div class="download-content">
@@ -604,75 +721,102 @@
   </div>
 
   <script>
-  const BASE_URL = "https://bakery-dashboard-dw72.onrender.com";
-  const SALES_API = BASE_URL + "/api/sales/today";
-  const ADD_CASH_API = BASE_URL + "/api/add_cash";
+    const BASE_URL = "https://bakery-dashboard-dw72.onrender.com";
+    const SALES_API = BASE_URL + "/api/sales/today";
+    const ADD_CASH_API = BASE_URL + "/api/add_cash";
 
-  function sumAmounts(list) {
-    return (list || []).reduce((total, item) => total + (item.amount || 0), 0);
-  }
-
-  async function reloadDashboard() {
-    try {
-      const res = await fetch(SALES_API);
-      if (!res.ok) throw new Error("Failed to fetch sales");
-      const data = await res.json();   // {cashSales: [...], upiSales: [...], customerCount: N}
-
-      const cash  = sumAmounts(data.cashSales);
-      const upi   = sumAmounts(data.upiSales);
-      const total = cash + upi;
-
-      document.getElementById("cashSales").textContent  = "₹" + cash.toFixed(2);
-      document.getElementById("upiSales").textContent   = "₹" + upi.toFixed(2);
-      document.getElementById("totalSales").textContent = "₹" + total.toFixed(2);
-
-      const msg = "Updated just now • " + (data.customerCount || 0) + " customers";
-      document.getElementById("cashTrend").innerHTML  =
-        '<i class="fas fa-arrow-trend-up"></i><span>' + msg + "</span>";
-      document.getElementById("upiTrend").innerHTML   =
-        '<i class="fas fa-arrow-trend-up"></i><span>' + msg + "</span>";
-      document.getElementById("totalTrend").innerHTML =
-        '<i class="fas fa-arrow-trend-up"></i><span>' + msg + "</span>";
-    } catch (err) {
-      console.error("reloadDashboard error", err);
-    }
-  }
-
-  async function addCashSale() {
-    const input = document.getElementById("cashAmountInput");
-    const amountStr = input.value.trim();
-    const amount = parseFloat(amountStr);
-
-    if (!amountStr || isNaN(amount) || amount <= 0) {
-      alert("Please enter a valid positive amount.");
-      return;
+    function sumAmounts(list) {
+      return (list || []).reduce((total, item) => total + (item.amount || 0), 0);
     }
 
-    try {
-      const res = await fetch(ADD_CASH_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount })
-      });
+    function renderTransactions(list, containerId, emptyLabel) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
 
-      const result = await res.json();   // {amount, mode, status, timestamp}
-
-      if (!res.ok || result.status !== "success") {
-        console.error("add_cash failed:", result);
-        alert("Could not add cash sale. Please try again.");
+      if (!list || list.length === 0) {
+        container.innerHTML =
+          '<div class="transaction-empty">No ' + emptyLabel + ' yet today.</div>';
         return;
       }
 
-      input.value = "";
-      await reloadDashboard();
-    } catch (e) {
-      console.error("addCashSale error", e);
-      alert("Network error. Please try again.");
+      for (const item of list) {
+        const row = document.createElement("div");
+        row.className = "transaction-row";
+        row.innerHTML = `
+          <span class="transaction-time">${item.time || ""}</span>
+          <span class="transaction-amount">₹${(item.amount || 0).toFixed(2)}</span>
+        `;
+        container.appendChild(row);
+      }
     }
-  }
 
-  reloadDashboard();
-  setInterval(reloadDashboard, 60000);
- </script>
+    async function reloadDashboard() {
+      try {
+        const res = await fetch(SALES_API);
+        if (!res.ok) throw new Error("Failed to fetch sales");
+        const data = await res.json();   // {cashSales: [...], upiSales: [...], customerCount: N}
+
+        const cashList = data.cashSales || [];
+        const upiList  = data.upiSales  || [];
+
+        const cash  = sumAmounts(cashList);
+        const upi   = sumAmounts(upiList);
+        const total = cash + upi;
+
+        document.getElementById("cashSales").textContent  = "₹" + cash.toFixed(2);
+        document.getElementById("upiSales").textContent   = "₹" + upi.toFixed(2);
+        document.getElementById("totalSales").textContent = "₹" + total.toFixed(2);
+
+        const msg = "Updated just now • " + (data.customerCount || 0) + " customers";
+        document.getElementById("cashTrend").innerHTML  =
+          '<i class="fas fa-arrow-trend-up"></i><span>' + msg + "</span>";
+        document.getElementById("upiTrend").innerHTML   =
+          '<i class="fas fa-arrow-trend-up"></i><span>' + msg + "</span>";
+        document.getElementById("totalTrend").innerHTML =
+          '<i class="fas fa-arrow-trend-up"></i><span>' + msg + "</span>";
+
+        renderTransactions(cashList, "cashTransactions", "cash sales");
+        renderTransactions(upiList, "upiTransactions", "UPI sales");
+      } catch (err) {
+        console.error("reloadDashboard error", err);
+      }
+    }
+
+    async function addCashSale() {
+      const input = document.getElementById("cashAmountInput");
+      const amountStr = input.value.trim();
+      const amount = parseFloat(amountStr);
+
+      if (!amountStr || isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid positive amount.");
+        return;
+      }
+
+      try {
+        const res = await fetch(ADD_CASH_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount })
+        });
+
+        const result = await res.json();   // {amount, mode, status, timestamp}
+
+        if (!res.ok || result.status !== "success") {
+          console.error("add_cash failed:", result);
+          alert("Could not add cash sale. Please try again.");
+          return;
+        }
+
+        input.value = "";
+        await reloadDashboard();
+      } catch (e) {
+        console.error("addCashSale error", e);
+        alert("Network error. Please try again.");
+      }
+    }
+
+    reloadDashboard();
+    setInterval(reloadDashboard, 60000);
+  </script>
 </body>
 </html>

@@ -606,71 +606,74 @@
   </div>
 
   <script>
-    const BASE_URL = "https://bakery-dashboard-dw72.onrender.com";
-    const SALES_API = BASE_URL + "/api/sales/today";
-    const ADD_CASH_API = BASE_URL + "/api/add_cash";
+  const BASE_URL = "https://bakery-dashboard-dw72.onrender.com";
+  const SALES_API = BASE_URL + "/api/sales/today";
+  const ADD_CASH_API = BASE_URL + "/api/add_cash";
 
-    async function reloadDashboard() {
-      try {
-        const res = await fetch(SALES_API);
-        if (!res.ok) throw new Error("Failed to fetch sales");
-        const data = await res.json();
+  async function reloadDashboard() {
+    try {
+      const res = await fetch(SALES_API);
+      if (!res.ok) throw new Error("Failed to fetch sales");
+      const data = await res.json();
 
-        const cash  = data.cash_sales  || 0;
-        const upi   = data.upi_sales   || 0;
-        const total = data.total_sales || (cash + upi);
+      // Match app.py exactly: cash_sales, upi_sales, total_sales
+      const cash  = data.cash_sales  || 0;
+      const upi   = data.upi_sales   || 0;
+      const total = data.total_sales || (cash + upi);
 
-        document.getElementById("cashSales").textContent  = "₹" + cash;
-        document.getElementById("upiSales").textContent   = "₹" + upi;
-        document.getElementById("totalSales").textContent = "₹" + total;
+      document.getElementById("cashSales").textContent  = "₹" + cash.toFixed(2);
+      document.getElementById("upiSales").textContent   = "₹" + upi.toFixed(2);
+      document.getElementById("totalSales").textContent = "₹" + total.toFixed(2);
 
-        const msg = "Updated just now";
-        document.getElementById("cashTrend").innerHTML  =
-          '<i class="fas fa-arrow-trend-up"></i><span>' + msg + "</span>";
-        document.getElementById("upiTrend").innerHTML   =
-          '<i class="fas fa-arrow-trend-up"></i><span>' + msg + "</span>";
-        document.getElementById("totalTrend").innerHTML =
-          '<i class="fas fa-arrow-trend-up"></i><span>' + msg + "</span>";
-      } catch (err) {
-        console.error("reloadDashboard error", err);
-      }
+      const msg = "Updated just now";
+      document.getElementById("cashTrend").innerHTML  =
+        '<i class="fas fa-arrow-trend-up"></i><span>' + msg + "</span>";
+      document.getElementById("upiTrend").innerHTML   =
+        '<i class="fas fa-arrow-trend-up"></i><span>' + msg + "</span>";
+      document.getElementById("totalTrend").innerHTML =
+        '<i class="fas fa-arrow-trend-up"></i><span>' + msg + "</span>";
+    } catch (err) {
+      console.error("reloadDashboard error", err);
+    }
+  }
+
+  async function addCashSale() {
+    const input = document.getElementById("cashAmountInput");
+    const amountStr = input.value.trim();
+    const amount = parseFloat(amountStr);
+
+    if (!amountStr || isNaN(amount) || amount <= 0) {
+      alert("Please enter a valid positive amount.");
+      return;
     }
 
-    async function addCashSale() {
-      const input = document.getElementById("cashAmountInput");
-      const amountStr = input.value.trim();
-      const amount = parseFloat(amountStr);
+    try {
+      const res = await fetch(ADD_CASH_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount })
+      });
 
-      if (!amountStr || isNaN(amount) || amount <= 0) {
-        alert("Please enter a valid positive amount.");
+      const result = await res.json();  // app.py returns {"status":"success"} or error
+
+      if (!res.ok || result.status !== "success") {
+        console.error("add_cash failed:", result);
+        alert("Could not add cash sale. Please try again.");
         return;
       }
 
-      try {
-        const res = await fetch(ADD_CASH_API, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount })
-        });
-
-        if (!res.ok) {
-          const text = await res.text();
-          console.error("add_cash failed:", text);
-          alert("Could not add cash sale. Please try again.");
-          return;
-        }
-
-        input.value = "";
-        await reloadDashboard();
-      } catch (e) {
-        console.error("addCashSale error", e);
-        alert("Network error. Please try again.");
-      }
+      // Clear input only after success
+      input.value = "";
+      await reloadDashboard();
+    } catch (e) {
+      console.error("addCashSale error", e);
+      alert("Network error. Please try again.");
     }
+  }
 
-    // initial load + periodic refresh
-    reloadDashboard();
-    setInterval(reloadDashboard, 60000);
-  </script>
+  // initial load + periodic refresh
+  reloadDashboard();
+  setInterval(reloadDashboard, 60000);
+</script>
 </body>
 </html>

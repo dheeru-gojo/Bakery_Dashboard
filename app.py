@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory, Response
+from flask import Flask, request, jsonify, send_from_directory, Response, send_file
 import os
 from datetime import datetime, date, timedelta, timezone
 import io
@@ -7,6 +7,7 @@ import sqlite3
 import threading
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
+from openpyxl import Workbook
 
 app = Flask(__name__)
 
@@ -464,6 +465,47 @@ def export_csv():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+@app.route("/export_excel")
+def export_excel():
+    """Export all sales as Excel (.xlsx) file."""
+    try:
+        with lock:
+            conn = get_db_connection()
+            c = conn.cursor()
+            c.execute('SELECT date, time, amount, mode, timestamp FROM sales ORDER BY timestamp DESC')
+            rows = c.fetchall()
+            conn.close()
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Sales"
+
+        # Header row
+        ws.append(["Date", "Time", "Amount", "Mode", "Full Timestamp"])
+
+        # Data rows
+        for row in rows:
+            ws.append([
+                row["date"],
+                row["time"],
+                row["amount"],
+                row["mode"],
+                row["timestamp"],
+            ])
+
+        file_stream = io.BytesIO()
+        wb.save(file_stream)
+        file_stream.seek(0)
+
+        return send_file(
+            file_stream,
+            as_attachment=True,
+            download_name="bakery_sales.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
 @app.route("/export_reports")
 def export_reports():
     """Export all daily reports as CSV file."""
@@ -504,5 +546,4 @@ def serve_static(path):
     return send_from_directory('.', path)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run()

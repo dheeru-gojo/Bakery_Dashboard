@@ -608,22 +608,25 @@
   const SALES_API = BASE_URL + "/api/sales/today";
   const ADD_CASH_API = BASE_URL + "/api/add_cash";
 
+  function sumAmounts(list) {
+    return (list || []).reduce((total, item) => total + (item.amount || 0), 0);
+  }
+
   async function reloadDashboard() {
     try {
       const res = await fetch(SALES_API);
       if (!res.ok) throw new Error("Failed to fetch sales");
-      const data = await res.json();
+      const data = await res.json();   // {cashSales: [...], upiSales: [...], customerCount: N}
 
-      // Match app.py exactly: cash_sales, upi_sales, total_sales
-      const cash  = data.cash_sales  || 0;
-      const upi   = data.upi_sales   || 0;
-      const total = data.total_sales || (cash + upi);
+      const cash  = sumAmounts(data.cashSales);
+      const upi   = sumAmounts(data.upiSales);
+      const total = cash + upi;
 
       document.getElementById("cashSales").textContent  = "₹" + cash.toFixed(2);
       document.getElementById("upiSales").textContent   = "₹" + upi.toFixed(2);
       document.getElementById("totalSales").textContent = "₹" + total.toFixed(2);
 
-      const msg = "Updated just now";
+      const msg = "Updated just now • " + (data.customerCount || 0) + " customers";
       document.getElementById("cashTrend").innerHTML  =
         '<i class="fas fa-arrow-trend-up"></i><span>' + msg + "</span>";
       document.getElementById("upiTrend").innerHTML   =
@@ -652,7 +655,7 @@
         body: JSON.stringify({ amount })
       });
 
-      const result = await res.json();  // app.py returns {"status":"success"} or error
+      const result = await res.json();   // {amount, mode, status, timestamp}
 
       if (!res.ok || result.status !== "success") {
         console.error("add_cash failed:", result);
@@ -660,7 +663,6 @@
         return;
       }
 
-      // Clear input only after success
       input.value = "";
       await reloadDashboard();
     } catch (e) {
@@ -669,7 +671,6 @@
     }
   }
 
-  // initial load + periodic refresh
   reloadDashboard();
   setInterval(reloadDashboard, 60000);
 </script>
